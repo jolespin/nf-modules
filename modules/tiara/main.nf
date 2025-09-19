@@ -33,6 +33,7 @@ process TIARA {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def write_fasta_flag = write_fasta ? "--to_fasta all" : ""
+    def gzip_fasta = write_fasta ? "find . -name "*_${fasta}*" -exec sh -c 'file=\$(basename {}); mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;" : ""
 
     def input = fasta
     def decompress_fasta = ""
@@ -81,7 +82,8 @@ process TIARA {
     fi
 
     # Adjust gzip file extensions for fasta
-    if echo "${args}" | grep -qE "tf|to_fasta"; then
+    // if echo "${args}" | grep -qE "tf|to_fasta"; then
+    if find . -name "*_tiara.gz" -print -quit | grep -q .; then
         find . -name "*_${fasta}*" -exec sh -c 'file=\$(basename {}); mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
     fi
 
