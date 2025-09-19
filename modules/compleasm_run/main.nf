@@ -5,9 +5,9 @@ def module_version = "2025.9.18"
 
 process COMPLEASM_RUN{
     tag "$meta.id"
-    label 'process_medium'
+    label "process_medium"
 
-    // conda "bioconda::compleasm=0.2.7" // This won't work with the reformatting script
+    // conda "bioconda::compleasm=0.2.7" // This won't work because it needs the reformatting script
     container "docker.io/jolespin/compleasm-veba:0.2.7"
 
     input:
@@ -44,4 +44,10 @@ process COMPLEASM_RUN{
         -i ${prefix}/summary.txt \\
         -o ${prefix}/summary.tsv
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        compleasm: $(compleasm --version | cut -d' ' -f2)
+        module: ${module_version}
+    END_VERSIONS
+"""
 }
