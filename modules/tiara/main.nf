@@ -80,7 +80,7 @@ process TIARA {
     fi
 
     # Adjust gzip file extensions for fasta
-    // if echo "${args}" | grep -qE "tf|to_fasta"; then
+    # if echo "${args}" | grep -qE "tf|to_fasta"; then
     if find . -name "*_tiara.gz" -print -quit | grep -q .; then
         find . -name "*_${fasta}*" -exec sh -c 'file=\$(basename {}); mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
     fi
