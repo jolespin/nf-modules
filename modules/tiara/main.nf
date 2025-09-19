@@ -49,7 +49,7 @@ process TIARA {
     ${decompress_fasta}
 
     # Scaffolds to genome
-    grep "^>" "${input}" | sed 's/^>//' | awk -v prefix="${prefix}" '{print prefix"\\t"\$1}' > scaffolds_to_genomes.tsv
+    grep "^>" "${input}" | sed 's/^>//' | awk -v prefix="${prefix}" '{print \$1"\\t"prefix}' > scaffolds_to_genomes.tsv
 
     # Run Tiara
     tiara -i ${input} \\
