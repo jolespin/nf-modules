@@ -44,6 +44,8 @@ process COMPLEASM_RUN{
         -i ${prefix}/summary.txt \\
         -o ${prefix}.compleasm_results.tsv
 
+    # Need to add cleanup of decompressed fasta if applicable
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         compleasm: \$(compleasm --version | cut -d' ' -f2)

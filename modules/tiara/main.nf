@@ -1,54 +1,98 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.18"
+def module_version = "2025.9.19"
 
 process TIARA {
     tag "$meta.id"
     label 'process_medium'
 
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
-    conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tiara:1.0.3' :
-        'biocontainers/tiara:1.0.3' }"
+    container "docker.io/jolespin/tiara-veba:1.0.3"
+
 
     input:
     tuple val(meta), path(fasta)
+    val(write_fasta)
     val(minimum_contig_length)
-    val(scaffolds_to_bins) // If not provided, then consensus domain classification will not be performed.
+    // val(scaffolds_to_bins) // Future versions may support multi-fasta
 
     output:
-    tuple val(meta), path("${prefix}.{tsv,tsv.gz}")  , emit: classifications
-    tuple val(meta), path("log_*.{txt,txt.gz}")      , emit: log
-    tuple val(meta), path("*.{fasta,fasta.gz}")          , emit: fasta, optional: true
+    tuple val(meta), path("*.probabilities.{tsv.gz}")  , emit: probabilities
+    tuple val(meta), path("*.log")      , emit: log
+    tuple val(meta), path("*.predictions.tsv.gz")  , emit: predictions
+    tuple val(meta), path("*.{fasta.gz}")          , emit: fasta, optional: true
     path "versions.yml"                                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    prefix = task.ext.prefix ?: "${meta.id}"
     def VERSION = '1.0.3' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def write_fasta = write_fasta ? "--to_fasta all" : ""
+
+    def input = ${fasta}
+    def decompress_fasta = ""
+    def cleanup = ""
+
+    if (fasta.toString().endsWith('.gz')) {
+        input = "temporary.fasta"
+        decompress_fasta = "gunzip -c ${fasta} > ${input}"
+        cleanup = "rm -f ${input}"
+    }
+    
     """
-    tiara -i ${fasta} \
-        -o ${prefix}.tsv \
+    # Prepare fasta file if gzipped
+    ${decompress_fasta}
+
+    # Scaffolds to genome
+    grep "^>" "$input" | sed 's/^>//' | awk -v prefix="$prefix" '{print prefix"\t"$1}' > scaffolds_to_genomes.tsv
+
+    # Run Tiara
+    tiara -i ${temporary_fasta} \
+        -o ${prefix}.probabilities.tsv \
         --threads ${task.cpus} \
         --probabilities \
         -m ${minimum_contig_length} \
         ${args}
 
-    ## fix gzip flag weirdness and ensure consistent .fasta filename output
-    ## check if fasta files are being output
-    if echo "${args}" | grep -qE "tf|to-fasta"; then
-        ## check if we've asked for gzip output, then rename files consistently
-        if echo "${args}" | grep -q "gz"; then
-            find . -name "*_${fasta}*" -exec sh -c 'file=`basename {}`; mv "\$file" "\${file%%_*}_${prefix}.fasta.gz"' \\;
-        else
-            find . -name "*_${fasta}*" -exec sh -c 'file=`basename {}`; mv "\$file" "\${file%%_*}_${prefix}.fasta"' \\;
-        fi
+    # Check if Tiara did not gzip files and gzip them. Also change the log filename.
+    if ! echo "${args}" | grep -q -- "--gz"; then
+
+        # Change log filename
+        mv -v log_${prefix}.probabilities.tsv ${prefix}.log
+
+        # Gzip probabilities
+        gzip -v -n -f ${prefix}.probabilities.tsv
+
+        # Gzip fasta (does not yet have .fasta extension)
+        if echo "${args}" | grep -qE "tf|to_fasta"; then
+            gzip -v -n -f *_tiara
+        fi    
+
+    else
+        # Change log filename
+        mv -v log_${prefix}.probabilities.tsv.gz ${prefix}.log
+
     fi
+
+    # Adjust gzip file extensions for fasta
+    if echo "${args}" | grep -qE "tf|to_fasta"; then
+        find . -name "*_${fasta}*" -exec sh -c 'file=`basename {}`; mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
+    fi
+
+    # Domain classification
+    consensus_domain_classification.py -i scaffolds_to_genomes.tsv -t ${prefix}.probabilities.tsv.gz -l softmax -o domains
+    mv  domains/predictions.tsv .
+    gzip -v -n -f ${prefix}.predictions.tsv
+
+    # Remove temporary files
+    ${cleanup}
+    rm -v -f scaffolds_to_genomes.tsv
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -60,9 +104,10 @@ process TIARA {
     prefix = task.ext.prefix ?: "${meta.id}"
     def VERSION = '1.0.3' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
-    touch ${prefix}.out.txt
-    touch log_${prefix}.out.txt
-    touch bacteria_${prefix}.fasta
+    touch ${prefix}.probabilities.tsv.gz
+    touch ${prefix}.log
+    touch ${prefix}.bacteria.fasta.gz
+    touch ${prefix}.predictions.tsv.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
