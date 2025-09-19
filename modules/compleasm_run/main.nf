@@ -16,7 +16,7 @@ process COMPLEASM_RUN{
     // val(db)
 
     output:
-    tuple val(meta), path("*.gff.gz")                   , emit: gff
+    tuple val(meta), path("*.tsv")                   , emit: tsv
     path "versions.yml"            `                     , emit: versions
 
     script:
