@@ -32,9 +32,9 @@ process TIARA {
 
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def write_fasta = write_fasta ? "--to_fasta all" : ""
+    def write_fasta_flag = write_fasta ? "--to_fasta all" : ""
 
-    def input = ${fasta}
+    def input = fasta
     def decompress_fasta = ""
     def cleanup = ""
 
@@ -49,14 +49,15 @@ process TIARA {
     ${decompress_fasta}
 
     # Scaffolds to genome
-    grep "^>" "$input" | sed 's/^>//' | awk -v prefix="$prefix" '{print prefix"\t"$1}' > scaffolds_to_genomes.tsv
+    grep "^>" "${input}" | sed 's/^>//' | awk -v prefix="${prefix}" '{print prefix"\\t"\$1}' > scaffolds_to_genomes.tsv
 
     # Run Tiara
-    tiara -i ${temporary_fasta} \
-        -o ${prefix}.probabilities.tsv \
-        --threads ${task.cpus} \
-        --probabilities \
-        -m ${minimum_contig_length} \
+    tiara -i ${input} \\
+        -o ${prefix}.probabilities.tsv \\
+        --threads ${task.cpus} \\
+        --probabilities \\
+        -m ${minimum_contig_length} \\
+        ${write_fasta_flag} \\
         ${args}
 
     # Check if Tiara did not gzip files and gzip them. Also change the log filename.
@@ -81,12 +82,12 @@ process TIARA {
 
     # Adjust gzip file extensions for fasta
     if echo "${args}" | grep -qE "tf|to_fasta"; then
-        find . -name "*_${fasta}*" -exec sh -c 'file=`basename {}`; mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
+        find . -name "*_${fasta}*" -exec sh -c 'file=\$(basename {}); mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
     fi
 
     # Domain classification
     consensus_domain_classification.py -i scaffolds_to_genomes.tsv -t ${prefix}.probabilities.tsv.gz -l softmax -o domains
-    mv  domains/predictions.tsv .
+    mv  domains/predictions.tsv ${prefix}.predictions.tsv
     gzip -v -n -f ${prefix}.predictions.tsv
 
     # Remove temporary files
@@ -101,7 +102,7 @@ process TIARA {
     """
 
     stub:
-    prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def VERSION = '1.0.3' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     touch ${prefix}.probabilities.tsv.gz
