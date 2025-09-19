@@ -42,7 +42,7 @@ process COMPLEASM_RUN{
     reformat_compleasm_results.py \\
         -n ${prefix} \\
         -i ${prefix}/summary.txt \\
-        -o ${prefix}/summary.tsv
+        -o ${prefix}.compleasm_results.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
