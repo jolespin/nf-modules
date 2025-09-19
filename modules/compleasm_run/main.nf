@@ -46,7 +46,7 @@ process COMPLEASM_RUN{
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        compleasm: $(compleasm --version | cut -d' ' -f2)
+        compleasm: \$(compleasm --version | cut -d' ' -f2)
         module: ${module_version}
     END_VERSIONS
 """
