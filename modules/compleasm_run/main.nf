@@ -16,8 +16,8 @@ process COMPLEASM_RUN{
     // val(db)
 
     output:
-    tuple val(meta), path("*.tsv")                   , emit: tsv
-    path "versions.yml"            `                     , emit: versions
+    tuple val(meta), path("*.tsv")  , emit: tsv
+    path "versions.yml"             , emit: versions
 
     script:
     def args = task.ext.args ?: ''
