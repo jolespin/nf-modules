@@ -84,12 +84,17 @@ process TIARA {
     #if find . -name "*_tiara.gz" -print -quit | grep -q .; then
     #    find . -name "*_${fasta}*" -exec sh -c 'file=\$(basename {}); mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
     #fi
-    find . -type f -name "*_tiara.gz" -exec bash -c '
-    for filepath; do
+    #find . -type f -name "*_tiara.gz" -exec bash -c '
+
+    # Enable nullglob: makes globs that match no files expand to nothing instead of the literal pattern
+    shopt -s nullglob
+    for filepath in *_tiara.gz; do
         dir=$(dirname "$filepath")
         base=$(basename "$filepath" "_tiara.gz")
-        mv -- "$filepath" "$dir/${base}.tiara.fasta.gz"
+        mv "$filepath" "$dir/${base}.tiara.fasta.gz"
     done
+    # Disable nullglob: restore default behavior where unmatched globs remain as literal strings
+    shopt -u nullglob
 
     # Domain classification
     consensus_domain_classification.py -i scaffolds_to_genomes.tsv -t ${prefix}.probabilities.tsv.gz -l softmax -o domains
