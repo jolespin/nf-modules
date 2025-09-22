@@ -18,7 +18,7 @@ process TIARA {
     // val(scaffolds_to_bins) // Future versions may support multi-fasta
 
     output:
-    tuple val(meta), path("*.probabilities.tsv.gz")  , emit: probabilities
+    tuple val(meta), path("*.probabilities.{tsv.gz}")  , emit: probabilities
     tuple val(meta), path("*.log")      , emit: log
     tuple val(meta), path("*.predictions.tsv.gz")  , emit: predictions
     tuple val(meta), path("*.{fasta.gz}")          , emit: fasta, optional: true
@@ -80,18 +80,12 @@ process TIARA {
     fi
 
     # Adjust gzip file extensions for fasta
-    # if echo "${args}" | grep -qE "tf|to_fasta"; then
-    #if find . -name "*_tiara.gz" -print -quit | grep -q .; then
-    #    find . -name "*_${fasta}*" -exec sh -c 'file=\$(basename {}); mv "\$file" "${prefix}.\${file%%_*}.fasta.gz"' \\;
-    #fi
-    #find . -type f -name "*_tiara.gz" -exec bash -c
-
     # Enable nullglob: makes globs that match no files expand to nothing instead of the literal pattern
     shopt -s nullglob
     for filepath in *_tiara.gz; do
-        dir=$(dirname "$filepath")
-        base=$(basename "$filepath" "_tiara.gz")
-        mv "$filepath" "$dir/${base}.tiara.fasta.gz"
+        dir=\$(dirname "\$filepath")
+        base=\$(basename "\$filepath" "_tiara.gz")
+        mv -- "\$filepath" "\$dir/\${base}.tiara.fasta.gz"
     done
     # Disable nullglob: restore default behavior where unmatched globs remain as literal strings
     shopt -u nullglob
