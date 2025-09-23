@@ -90,7 +90,7 @@ process EUKARYOTIC_GENE_PREDICTION {
     # Move outputs to expected names
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/${name}.${ext} > ${name}.nuclear.${ext}.gz
+        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/${name}.\${ext} > ${name}.nuclear.\${ext}.gz
     done
     gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
     gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
@@ -98,14 +98,14 @@ process EUKARYOTIC_GENE_PREDICTION {
     # Mitochondrion
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/mitochondrion/${name}.${ext} > ${name}.mitochondrion.${ext}.gz
+        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/mitochondrion/${name}.\${ext} > ${name}.mitochondrion.\${ext}.gz
     done
     gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
 
     # Plastid
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/plastid/${name}.${ext} > ${name}.plastid.${ext}.gz
+        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/plastid/${name}.\${ext} > ${name}.plastid.\${ext}.gz
     done
     gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
 

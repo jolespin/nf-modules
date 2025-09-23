@@ -27,13 +27,9 @@ RUN micromamba install -y -n base -c bioconda -c conda-forge metaeuk==7.bba0d80 
     micromamba clean -a -y -f
 
 # Add additional scripts to environment bin
-RUN cp -rf ./bin/LICENSE /opt/conda/bin/
-RUN cp -rf ./bin/append_geneid_to_barrnap_gff.py /opt/conda/bin/
-RUN cp -rf ./bin/append_geneid_to_prodigal_gff.py /opt/conda/bin/
-RUN cp -rf ./bin/compile_metaeuk_identifiers.py /opt/conda/bin/
-RUN cp -rf ./bin/eukaryotic_gene_modeling_wrapper.py /opt/conda/bin/
-RUN cp -rf ./bin/partition_gene_models.py /opt/conda/bin/
-RUN cp -rf ./bin/partition_organelle_sequences.py /opt/conda/bin/
+RUN cp -rf ./bin/LICENSE /opt/conda/bin/ && \
+    cp -rf ./bin/*.py /opt/conda/bin/ && \
+    chmod +x /opt/conda/bin/*.py
 
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh"]
