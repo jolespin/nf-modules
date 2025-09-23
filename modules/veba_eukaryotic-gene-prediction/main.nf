@@ -62,6 +62,8 @@ process EUKARYOTIC_GENE_PREDICTION {
 
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def db_name = db[0].baseName.replaceAll(/\..*/, '')
+
     def input = fasta
     def decompress_fasta = ""
     def cleanup = ""
@@ -81,7 +83,7 @@ process EUKARYOTIC_GENE_PREDICTION {
         -p ${task.cpus} \\
         -n ${name} \\
         -f ${input} \\
-        -d ${db} \\
+        -d ${db_name} \\
         -o eukaryotic_gene_modeling_output \\
         --tiara_minimum_length ${minimum_contig_length} \\
         ${args}
