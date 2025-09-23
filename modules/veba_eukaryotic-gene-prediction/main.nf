@@ -15,13 +15,45 @@ process EUKARYOTIC_GENE_PREDICTION {
     tuple val(dbmeta), path(db)
     val(name)
     val(minimum_contig_length)
-    // val(scaffolds_to_bins) // Future versions may support multi-fasta
+    // val(scaffolds_to_bins) // Future versions may support multiple fasta
 
     output:
-    tuple val(meta), path("*.probabilities.tsv.gz")  , emit: probabilities
-    tuple val(meta), path("*.log")      , emit: log
-    tuple val(meta), path("*.predictions.tsv.gz")  , emit: predictions
-    tuple val(meta), path("*.fasta.gz")          , emit: fasta, optional: true
+    // Identifier mappings
+    tuple val(meta), path("*.identifier_mapping.metaeuk.tsv.gz")  , emit: metaeuk_identifier_mapping
+    tuple val(meta), path("*.identifier_mapping.nuclear.tsv.gz")  , emit: nuclear_identifier_mapping
+    tuple val(meta), path("*.identifier_mapping.mitochondrion.tsv.gz")  , emit: mitochondrion_identifier_mapping
+    tuple val(meta), path("*.identifier_mapping.plastid.tsv.gz")  , emit: plastid_identifier_mapping
+
+    // Statistics
+    tuple val(meta), path("*.genome_statistics.tsv.gz")  , emit: stats_genome
+    tuple val(meta), path("*.gene_statistics.cds.tsv.gz")  , emit: stats_cds
+    tuple val(meta), path("*.gene_statistics.rRNA.tsv.gz")  , emit: stats_rRNA
+    tuple val(meta), path("*.gene_statistics.tRNA.tsv.gz")  , emit: stats_tRNA
+
+    // Nuclear
+    tuple val(meta), path("*.nuclear.fa.gz")  , emit: nuclear_fa
+    tuple val(meta), path("*.nuclear.faa.gz")  , emit: nuclear_faa
+    tuple val(meta), path("*.nuclear.ffn.gz")  , emit: nuclear_ffn
+    tuple val(meta), path("*.nuclear.gff.gz")  , emit: nuclear_gff
+    tuple val(meta), path("*.nuclear.rRNA.gz")  , emit: nuclear_rRNA
+    tuple val(meta), path("*.nuclear.tRNA.gz")  , emit: nuclear_tRNA
+
+    // Mitochondrion
+    tuple val(meta), path("*.mitochondrion.fa.gz")  , emit: mitochondrion_fa
+    tuple val(meta), path("*.mitochondrion.faa.gz")  , emit: mitochondrion_faa
+    tuple val(meta), path("*.mitochondrion.ffn.gz")  , emit: mitochondrion_ffn
+    tuple val(meta), path("*.mitochondrion.gff.gz")  , emit: mitochondrion_gff
+    tuple val(meta), path("*.mitochondrion.rRNA.gz")  , emit: mitochondrion_rRNA
+    tuple val(meta), path("*.mitochondrion.tRNA.gz")  , emit: mitochondrion_tRNA
+
+    // Plastid
+    tuple val(meta), path("*.plastid.fa.gz")  , emit: plastid_fa
+    tuple val(meta), path("*.plastid.faa.gz")  , emit: plastid_faa
+    tuple val(meta), path("*.plastid.ffn.gz")  , emit: plastid_ffn
+    tuple val(meta), path("*.plastid.gff.gz")  , emit: plastid_gff
+    tuple val(meta), path("*.plastid.rRNA.gz")  , emit: plastid_rRNA
+    tuple val(meta), path("*.plastid.tRNA.gz")  , emit: plastid_tRNA
+
     path "versions.yml"                                  , emit: versions
 
     when:
