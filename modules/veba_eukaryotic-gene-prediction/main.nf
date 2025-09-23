@@ -1,14 +1,13 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.22"
+def module_version = "2025.9.23"
 
 process EUKARYOTIC_GENE_PREDICTION {
     tag "$meta.id"
     label 'process_medium'
 
     container "docker.io/jolespin/veba_eukaryotic-gene-prediction:2.5.1"
-
 
     input:
     tuple val(meta), path(fasta)
@@ -90,35 +89,35 @@ process EUKARYOTIC_GENE_PREDICTION {
     # Move outputs to expected names
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/${name}.\${ext} > ${name}.nuclear.\${ext}.gz
+        gzip -f -v -c -n eukaryotic_gene_modeling_output/output/${name}.\${ext} > ${name}.nuclear.\${ext}.gz
     done
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
 
     # Mitochondrion
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/mitochondrion/${name}.\${ext} > ${name}.mitochondrion.\${ext}.gz
+        gzip -f -v -c -n eukaryotic_gene_modeling_output/output/mitochondrion/${name}.\${ext} > ${name}.mitochondrion.\${ext}.gz
     done
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
 
     # Plastid
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/plastid/${name}.\${ext} > ${name}.plastid.\${ext}.gz
+        gzip -f -v -c -n eukaryotic_gene_modeling_output/output/plastid/${name}.\${ext} > ${name}.plastid.\${ext}.gz
     done
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
 
     # Statistics
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/genome_statistics.tsv > ${name}.genome_statistics.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/gene_statistics.cds.tsv > ${name}.gene_statistics.cds.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/gene_statistics.rRNA.tsv > ${name}.gene_statistics.rRNA.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/${name}/output/gene_statistics.tRNA.tsv > ${name}.gene_statistics.tRNA.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/genome_statistics.tsv > ${name}.genome_statistics.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/gene_statistics.cds.tsv > ${name}.gene_statistics.cds.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/gene_statistics.rRNA.tsv > ${name}.gene_statistics.rRNA.tsv.gz
+    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/gene_statistics.tRNA.tsv > ${name}.gene_statistics.tRNA.tsv.gz
 
     # Cleanup
     ${cleanup}
 
-    rm -rv eukaryotic_gene_modeling_output/${name}/output/
+    rm -rv eukaryotic_gene_modeling_output/output/
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
