@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { TIARA } from "main"
+include { COMPLEASM_RUN } from "../main"
 
 workflow {
     // Define a dummy FASTA file for the pipeline to process.
@@ -20,14 +20,11 @@ workflow {
     }
 
     // Run the process with the prepared channel.
-    TIARA(
+    COMPLEASM_RUN(
 	fasta_with_meta,
 	true,
-    3000,
 	)
 
     // View the output to confirm the pipeline ran successfully.
-    TIARA.out.probabilities.view()
-    TIARA.out.predictions.view()
-    TIARA.out.fasta.view()
+    COMPLEASM_RUN.out.tsv.view()
 }

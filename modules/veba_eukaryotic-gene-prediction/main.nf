@@ -84,7 +84,7 @@ process EUKARYOTIC_GENE_PREDICTION {
         -f ${input} \\
         -d ${db} \\
         -o eukaryotic_gene_modeling_output \\
-        ----tiara_minimum_length ${minimum_contig_length} \\
+        --tiara_minimum_length ${minimum_contig_length} \\
         ${args}
 
     # Move outputs to expected names
