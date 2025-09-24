@@ -96,8 +96,7 @@ process EUKARYOTIC_GENE_PREDICTION {
     # gzip -f -v -c -n results/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
 
     gzip -f -v -c -n results/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
-    awk -F"\t" 'NR>1 {print "${name}", $3, $5}' OFS="\t" identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${name}.identifier_mapping.nuclear.tsv.gz
-
+    awk -F"\t" 'NR>1 {print "${name}", \$3, \$5}' OFS="\t" identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${name}.identifier_mapping.nuclear.tsv.gz
 
     # Mitochondrion
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
