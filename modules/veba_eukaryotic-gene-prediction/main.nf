@@ -20,8 +20,8 @@ process EUKARYOTIC_GENE_PREDICTION {
     // Identifier mappings
     tuple val(meta), path("*.identifier_mapping.metaeuk.tsv.gz")  , emit: metaeuk_identifier_mapping
     tuple val(meta), path("*.identifier_mapping.nuclear.tsv.gz")  , emit: nuclear_identifier_mapping
-    tuple val(meta), path("*.identifier_mapping.mitochondrion.tsv.gz")  , emit: mitochondrion_identifier_mapping
-    tuple val(meta), path("*.identifier_mapping.plastid.tsv.gz")  , emit: plastid_identifier_mapping
+    // tuple val(meta), path("*.identifier_mapping.mitochondrion.tsv.gz")  , emit: mitochondrion_identifier_mapping
+    // tuple val(meta), path("*.identifier_mapping.plastid.tsv.gz")  , emit: plastid_identifier_mapping
 
     // Statistics
     tuple val(meta), path("*.genome_statistics.tsv.gz")  , emit: stats_genome
