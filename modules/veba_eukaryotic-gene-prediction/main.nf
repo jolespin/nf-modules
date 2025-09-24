@@ -84,64 +84,95 @@ process EUKARYOTIC_GENE_PREDICTION {
         -n ${name} \\
         -f ${input} \\
         -d ${db_name} \\
-        -o eukaryotic_gene_modeling_output \\
+        -o results \\
         --tiara_minimum_length ${minimum_contig_length} \\
         ${args}
 
     # Move outputs to expected names
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/output/${name}.\${ext} > ${name}.nuclear.\${ext}.gz
+        gzip -f -v -c -n results/output/${name}.\${ext} > ${name}.nuclear.\${ext}.gz
     done
-    # gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
+    # gzip -f -v -c -n results/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
 
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
+    gzip -f -v -c -n results/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
     awk -F"\t" 'NR>1 {print "${name}", $3, $5}' OFS="\t" identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${name}.identifier_mapping.nuclear.tsv.gz
 
 
     # Mitochondrion
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/output/mitochondrion/${name}.\${ext} > ${name}.mitochondrion.\${ext}.gz
+        gzip -f -v -c -n results/output/mitochondrion/${name}.\${ext} > ${name}.mitochondrion.\${ext}.gz
     done
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
+    gzip -f -v -c -n results/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
 
     # Plastid
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
-        gzip -f -v -c -n eukaryotic_gene_modeling_output/output/plastid/${name}.\${ext} > ${name}.plastid.\${ext}.gz
+        gzip -f -v -c -n results/output/plastid/${name}.\${ext} > ${name}.plastid.\${ext}.gz
     done
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
+    gzip -f -v -c -n results/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
 
     # Statistics
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/genome_statistics.tsv > ${name}.genome_statistics.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/gene_statistics.cds.tsv > ${name}.gene_statistics.cds.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/gene_statistics.rRNA.tsv > ${name}.gene_statistics.rRNA.tsv.gz
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/gene_statistics.tRNA.tsv > ${name}.gene_statistics.tRNA.tsv.gz
+    gzip -f -v -c -n results/output/genome_statistics.tsv > ${name}.genome_statistics.tsv.gz
+    gzip -f -v -c -n results/output/gene_statistics.cds.tsv > ${name}.gene_statistics.cds.tsv.gz
+    gzip -f -v -c -n results/output/gene_statistics.rRNA.tsv > ${name}.gene_statistics.rRNA.tsv.gz
+    gzip -f -v -c -n results/output/gene_statistics.tRNA.tsv > ${name}.gene_statistics.tRNA.tsv.gz
 
     # Cleanup
     ${cleanup}
-
-    rm -rv eukaryotic_gene_modeling_output/output/
+    rm -rv results/tmp/
+    rm -rv results/output/
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        eukaryotic_gene_modeling_wrapper.py: \$(eukaryotic_gene_modeling_wrapper.py --version)
+        eukaryotic_gene_modeling_wrapper.py: \$(eukaryotic_gene_modeling_wrapper.py --version | cut -f2 -d " ")
     END_VERSIONS
     """
 
-    // stub:
-    // def prefix = task.ext.prefix ?: "${meta.id}"
-    // def VERSION = '1.0.3' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
-    // """
-    // touch ${prefix}.probabilities.tsv.gz
-    // touch ${prefix}.log
-    // touch ${prefix}.bacteria.fasta.gz
-    // touch ${prefix}.predictions.tsv.gz
-
-    // cat <<-END_VERSIONS > versions.yml
-    // "${task.process}":
-    //     tiara: ${VERSION}
-    // END_VERSIONS
-    // """
+    stub:
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    
+    """
+    # Create stub identifier mapping files
+    touch ${name}.identifier_mapping.metaeuk.tsv.gz
+    touch ${name}.identifier_mapping.nuclear.tsv.gz
+    
+    # Create stub statistics files
+    touch ${name}.genome_statistics.tsv.gz
+    touch ${name}.gene_statistics.cds.tsv.gz
+    touch ${name}.gene_statistics.rRNA.tsv.gz
+    touch ${name}.gene_statistics.tRNA.tsv.gz
+    
+    # Create stub nuclear files
+    touch ${name}.nuclear.fa.gz
+    touch ${name}.nuclear.faa.gz
+    touch ${name}.nuclear.ffn.gz
+    touch ${name}.nuclear.gff.gz
+    touch ${name}.nuclear.rRNA.gz
+    touch ${name}.nuclear.tRNA.gz
+    
+    # Create stub mitochondrion files
+    touch ${name}.mitochondrion.fa.gz
+    touch ${name}.mitochondrion.faa.gz
+    touch ${name}.mitochondrion.ffn.gz
+    touch ${name}.mitochondrion.gff.gz
+    touch ${name}.mitochondrion.rRNA.gz
+    touch ${name}.mitochondrion.tRNA.gz
+    
+    # Create stub plastid files
+    touch ${name}.plastid.fa.gz
+    touch ${name}.plastid.faa.gz
+    touch ${name}.plastid.ffn.gz
+    touch ${name}.plastid.gff.gz
+    touch ${name}.plastid.rRNA.gz
+    touch ${name}.plastid.tRNA.gz
+    
+    # Create versions file
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        eukaryotic_gene_modeling_wrapper.py: \$(eukaryotic_gene_modeling_wrapper.py --version | cut -f2 -d " ")
+    END_VERSIONS
+    """
 }
