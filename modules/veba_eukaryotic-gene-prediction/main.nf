@@ -103,14 +103,14 @@ process EUKARYOTIC_GENE_PREDICTION {
     do
         gzip -f -v -c -n results/output/mitochondrion/${name}.\${ext} > ${name}.mitochondrion.\${ext}.gz
     done
-    gzip -f -v -c -n results/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
+    # gzip -f -v -c -n results/output/mitochondrion/identifier_mapping.tsv > ${name}.identifier_mapping.mitochondrion.tsv.gz
 
     # Plastid
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
     do
         gzip -f -v -c -n results/output/plastid/${name}.\${ext} > ${name}.plastid.\${ext}.gz
     done
-    gzip -f -v -c -n results/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
+    # gzip -f -v -c -n results/output/plastid/identifier_mapping.tsv > ${name}.identifier_mapping.plastid.tsv.gz
 
     # Statistics
     gzip -f -v -c -n results/output/genome_statistics.tsv > ${name}.genome_statistics.tsv.gz
