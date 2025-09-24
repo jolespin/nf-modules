@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.23"
+def module_version = "2025.9.24"
 
 process EUKARYOTIC_GENE_PREDICTION {
     tag "$meta.id"
@@ -93,8 +93,11 @@ process EUKARYOTIC_GENE_PREDICTION {
     do
         gzip -f -v -c -n eukaryotic_gene_modeling_output/output/${name}.\${ext} > ${name}.nuclear.\${ext}.gz
     done
-    gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
+    # gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.tsv > ${name}.identifier_mapping.nuclear.tsv.gz
+
     gzip -f -v -c -n eukaryotic_gene_modeling_output/output/identifier_mapping.metaeuk.tsv > ${name}.identifier_mapping.metaeuk.tsv.gz
+    awk -F"\t" 'NR>1 {print "${name}", $3, $5}' OFS="\t" identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${name}.identifier_mapping.nuclear.tsv.gz
+
 
     # Mitochondrion
     for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
