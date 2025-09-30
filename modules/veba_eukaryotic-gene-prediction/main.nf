@@ -1,7 +1,49 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.29"
+def module_version = "2025.9.30"
+
+
+// # eukaryotic_gene_modeling_wrapper.py output structure:
+// output_directory/
+// ├── {bin_id_1}.fa                      # Nuclear sequences for bin 1
+// ├── {bin_id_1}.faa                     # Nuclear proteins for bin 1
+// ├── {bin_id_1}.ffn                     # Nuclear CDS for bin 1
+// ├── {bin_id_1}.gff                     # Combined annotations for bin 1
+// ├── {bin_id_1}.rRNA                    # Nuclear rRNA for bin 1
+// ├── {bin_id_1}.tRNA                    # Nuclear tRNA for bin 1
+// │
+// ├── {bin_id_2}.fa                      # Nuclear sequences for bin 2
+// ├── {bin_id_2}.faa                     # ... (same pattern)
+// ├── ... (one set per bin ID)
+// │
+// ├── identifier_mapping.metaeuk.tsv     # MetaEuk identifier mapping (all bins)
+// ├── identifier_mapping.tsv             # General identifier mapping (all bins)
+// ├── genome_statistics.tsv              # Stats for all genomes
+// ├── gene_statistics.cds.tsv            # CDS stats for all
+// ├── gene_statistics.rRNA.tsv           # rRNA stats for all
+// ├── gene_statistics.tRNA.tsv           # tRNA stats for all
+// │
+// ├── mitochondrion/
+// │   ├── {bin_id_1}.fa                  # Each bin's mitochondrial sequences
+// │   ├── {bin_id_1}.faa
+// │   ├── {bin_id_1}.ffn
+// │   ├── {bin_id_1}.gff
+// │   ├── {bin_id_1}.rRNA
+// │   ├── {bin_id_1}.tRNA
+// │   ├── {bin_id_2}.fa                  # ... (one set per bin)
+// │   └── ...
+// │
+// └── plastid/
+//     ├── {bin_id_1}.fa                  # Each bin's plastid sequences
+//     ├── {bin_id_1}.faa
+//     ├── {bin_id_1}.ffn
+//     ├── {bin_id_1}.gff
+//     ├── {bin_id_1}.rRNA
+//     ├── {bin_id_1}.tRNA
+//     ├── {bin_id_2}.fa                  # ... (one set per bin)
+//     └── ...
+
 
 process VEBA_EUKARYOTIC_GENE_PREDICTION {
     tag "$meta.id"
@@ -97,7 +139,7 @@ process VEBA_EUKARYOTIC_GENE_PREDICTION {
     # gzip -f -v -c -n results/output/identifier_mapping.tsv > ${prefix}.identifier_mapping.nuclear.tsv.gz
 
     gzip -f -v -c -n results/output/identifier_mapping.metaeuk.tsv > ${prefix}.identifier_mapping.metaeuk.tsv.gz
-    awk -F"\t" 'NR>1 {print "${prefix}", \$3, \$5}' OFS="\t" results/output/identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${name}.identifier_mapping.nuclear.tsv.gz
+    awk -F"\t" 'NR>1 {print "${prefix}", \$3, \$5}' OFS="\t" results/output/identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${prefix}.identifier_mapping.nuclear.tsv.gz
 
     # Statistics
     gzip -f -v -c -n results/output/genome_statistics.tsv > ${prefix}.genome_statistics.tsv.gz
@@ -147,7 +189,137 @@ process VEBA_EUKARYOTIC_GENE_PREDICTION {
     """
 }
 
-// process VEBA_EUKARYOTIC_GENE_PREDICTION_MANY {
+process VEBA_EUKARYOTIC_GENE_PREDICTION_MANY {
+    tag "$meta.id"
+    label 'process_medium'
+
+    container "docker.io/jolespin/veba_eukaryotic-gene-prediction:2.5.1"
+
+    input:
+    tuple val(meta), path(fasta)
+    tuple val(dbmeta), path(db)
+    path(contigs_to_genomes) // TSV mapping contig IDs to genome/bin IDs (no header)
+    path(tiara_probabilities)  // Optional: pass empty list if not used.
+    val(minimum_contig_length) // Recommended: 3000
+
+    output:
+    // Identifier mappings
+    tuple val(meta), path("*.identifier_mapping.metaeuk.tsv.gz")  , emit: metaeuk_identifier_mapping
+    tuple val(meta), path("*.identifier_mapping.nuclear.tsv.gz")  , emit: nuclear_identifier_mapping
+
+    // Statistics
+    tuple val(meta), path("*.genome_statistics.tsv.gz")  , emit: stats_genome
+    tuple val(meta), path("*.gene_statistics.cds.tsv.gz")  , emit: stats_cds
+    tuple val(meta), path("*.gene_statistics.rRNA.tsv.gz")  , emit: stats_rRNA
+    tuple val(meta), path("*.gene_statistics.tRNA.tsv.gz")  , emit: stats_tRNA
+
+    // Gene Predictions
+    tuple val(meta), path("*.fa.gz")  , emit: fa
+    tuple val(meta), path("*.faa.gz")  , emit: faa
+    tuple val(meta), path("*.ffn.gz")  , emit: ffn
+    tuple val(meta), path("*.gff.gz")  , emit: gff
+    tuple val(meta), path("*.rRNA.gz")  , emit: rRNA
+    tuple val(meta), path("*.tRNA.gz")  , emit: tRNA
+
+    path "versions.yml"                                  , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def tiara_probabilities_arg = tiara_probabilities ? "-t ${tiara_probabilities}" : ''
+
+    def input = fasta
+    def decompress_fasta = ""
+    def cleanup = ""
+
+    if (fasta.toString().endsWith('.gz')) {
+        input = "temporary.fasta"
+        decompress_fasta = "gunzip -c ${fasta} > ${input}"
+        cleanup = "rm -f ${input}"
+    }
+    
+    """
+    # Prepare fasta file if gzipped
+    ${decompress_fasta}
+
+    # Run VEBA Eukaryotic Gene Modeling Wrapper
+    eukaryotic_gene_modeling_wrapper.py \\
+        -p ${task.cpus} \\
+        -i ${contigs_to_genomes} \\
+        -f ${input} \\
+        -d ${db_name} \\
+        -o results \\
+        --tiara_minimum_length ${minimum_contig_length} \\
+        ${tiara_probabilities_arg} \\
+        ${args}
+
+    # Move outputs to expected names
+    for id_genome in \$(cut -f2 ${contigs_to_genomes} | sort -u); do
+        for ext in "fa" "faa" "ffn" "gff" "rRNA" "tRNA"; 
+        do
+            cat results/output/\${id_genome}.\${ext} results/output/mitochondrion/\${id_genome}.\${ext} results/output/plastid/\${id_genome}.\${ext}| gzip -f -v -c -n  > \${id_genome}.\${ext}.gz
+        done
+    done
+
+    # gzip -f -v -c -n results/output/identifier_mapping.tsv > ${prefix}.identifier_mapping.nuclear.tsv.gz
+
+    gzip -f -v -c -n results/output/identifier_mapping.metaeuk.tsv > ${prefix}.identifier_mapping.metaeuk.tsv.gz
+    awk -F"\t" 'NR>1 {print "${prefix}", \$3, \$5}' OFS="\t" results/output/identifier_mapping.metaeuk.tsv | gzip -f -v -n > ${prefix}.identifier_mapping.nuclear.tsv.gz
+
+    # Statistics
+    gzip -f -v -c -n results/output/genome_statistics.tsv > ${prefix}.genome_statistics.tsv.gz
+    gzip -f -v -c -n results/output/gene_statistics.cds.tsv > ${prefix}.gene_statistics.cds.tsv.gz
+    gzip -f -v -c -n results/output/gene_statistics.rRNA.tsv > ${prefix}.gene_statistics.rRNA.tsv.gz
+    gzip -f -v -c -n results/output/gene_statistics.tRNA.tsv > ${prefix}.gene_statistics.tRNA.tsv.gz
+
+    # Cleanup
+    ${cleanup}
+    rm -rv results/tmp/
+    rm -rv results/output/
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        eukaryotic_gene_modeling_wrapper.py: \$(eukaryotic_gene_modeling_wrapper.py --version | cut -f2 -d " ")
+    END_VERSIONS
+    """
+
+    stub:
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    
+    """
+    # Create stub identifier mapping files
+    touch ${prefix}.identifier_mapping.metaeuk.tsv.gz
+    touch ${prefix}.identifier_mapping.nuclear.tsv.gz
+    
+    # Create stub statistics files
+    touch ${prefix}.genome_statistics.tsv.gz
+    touch ${prefix}.gene_statistics.cds.tsv.gz
+    touch ${prefix}.gene_statistics.rRNA.tsv.gz
+    touch ${prefix}.gene_statistics.tRNA.tsv.gz
+    
+    # Create stub nuclear files
+    touch ${prefix}.fa.gz
+    touch ${prefix}.faa.gz
+    touch ${prefix}.ffn.gz
+    touch ${prefix}.gff.gz
+    touch ${prefix}.rRNA.gz
+    touch ${prefix}.tRNA.gz
+    
+    # Create versions file
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        eukaryotic_gene_modeling_wrapper.py: \$(eukaryotic_gene_modeling_wrapper.py --version | cut -f2 -d " ")
+    END_VERSIONS
+    """
+}
+
+
+// process VEBA_EUKARYOTIC_GENE_PREDICTION_MANY { // This takes in multiple genomes but is not operational
 //     tag "$meta.id"
 //     label 'process_medium'
 

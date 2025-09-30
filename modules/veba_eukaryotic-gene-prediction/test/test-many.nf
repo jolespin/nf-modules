@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { VEBA_EUKARYOTIC_GENE_PREDICTION } from "../main"
+include { VEBA_EUKARYOTIC_GENE_PREDICTION_MANY } from "../main"
 
 workflow {
     // Define a dummy FASTA file for the pipeline to process.
@@ -25,11 +25,13 @@ workflow {
         return [meta, files]
     }
 
+    contigs_to_genomes_ch = Channel.fromPath(params.contigs_to_genomes, checkIfExists: true)
+
     // Run the process with the prepared channel.
     VEBA_EUKARYOTIC_GENE_PREDICTION(
         fasta_with_meta,
         db_with_meta,
-        "test",
+        contigs_to_genomes_ch,
         3000,
 	)
 
