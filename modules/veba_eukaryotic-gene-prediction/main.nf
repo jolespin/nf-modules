@@ -3,48 +3,6 @@ nextflow.enable.dsl = 2
 
 def module_version = "2025.9.30"
 
-
-// # eukaryotic_gene_modeling_wrapper.py output structure:
-// output_directory/
-// ├── {bin_id_1}.fa                      # Nuclear sequences for bin 1
-// ├── {bin_id_1}.faa                     # Nuclear proteins for bin 1
-// ├── {bin_id_1}.ffn                     # Nuclear CDS for bin 1
-// ├── {bin_id_1}.gff                     # Combined annotations for bin 1
-// ├── {bin_id_1}.rRNA                    # Nuclear rRNA for bin 1
-// ├── {bin_id_1}.tRNA                    # Nuclear tRNA for bin 1
-// │
-// ├── {bin_id_2}.fa                      # Nuclear sequences for bin 2
-// ├── {bin_id_2}.faa                     # ... (same pattern)
-// ├── ... (one set per bin ID)
-// │
-// ├── identifier_mapping.metaeuk.tsv     # MetaEuk identifier mapping (all bins)
-// ├── identifier_mapping.tsv             # General identifier mapping (all bins)
-// ├── genome_statistics.tsv              # Stats for all genomes
-// ├── gene_statistics.cds.tsv            # CDS stats for all
-// ├── gene_statistics.rRNA.tsv           # rRNA stats for all
-// ├── gene_statistics.tRNA.tsv           # tRNA stats for all
-// │
-// ├── mitochondrion/
-// │   ├── {bin_id_1}.fa                  # Each bin's mitochondrial sequences
-// │   ├── {bin_id_1}.faa
-// │   ├── {bin_id_1}.ffn
-// │   ├── {bin_id_1}.gff
-// │   ├── {bin_id_1}.rRNA
-// │   ├── {bin_id_1}.tRNA
-// │   ├── {bin_id_2}.fa                  # ... (one set per bin)
-// │   └── ...
-// │
-// └── plastid/
-//     ├── {bin_id_1}.fa                  # Each bin's plastid sequences
-//     ├── {bin_id_1}.faa
-//     ├── {bin_id_1}.ffn
-//     ├── {bin_id_1}.gff
-//     ├── {bin_id_1}.rRNA
-//     ├── {bin_id_1}.tRNA
-//     ├── {bin_id_2}.fa                  # ... (one set per bin)
-//     └── ...
-
-
 process VEBA_EUKARYOTIC_GENE_PREDICTION {
     tag "$meta.id"
     label 'process_medium'
@@ -103,12 +61,12 @@ process VEBA_EUKARYOTIC_GENE_PREDICTION {
 
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def db_name = db[0].baseName.replaceAll(/\..*/, '')
+    def db_name = db[0].baseName.replaceAll(/(_h(\.(dbtype|index))?|\.(dbtype|index|lookup|source))$/, '')
     def tiara_probabilities_arg = tiara_probabilities ? "-t ${tiara_probabilities}" : ''
 
     def input = "temporary.fasta"
     def cleanup = "rm -fv ${input}"
-    
+
     if (fasta.toString().endsWith('.gz')) {
         prepare_fasta = "gunzip -c ${fasta} | sed '/^>/s/ .*//' > ${input}"
     }
@@ -230,6 +188,8 @@ process VEBA_EUKARYOTIC_GENE_PREDICTION_MANY {
 
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def db_name = db[0].baseName.replaceAll(/(_h(\.(dbtype|index))?|\.(dbtype|index|lookup|source))$/, '')
+
     def tiara_probabilities_arg = tiara_probabilities ? "-t ${tiara_probabilities}" : ''
 
     def input = "temporary.fasta"
