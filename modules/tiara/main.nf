@@ -33,19 +33,21 @@ process TIARA {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def write_fasta_flag = write_fasta ? "--to_fasta all" : ""
-    def input = fasta
-    def decompress_fasta = ""
-    def cleanup = ""
 
+
+    def input = "temporary.fasta"
+    def cleanup = "rm -fv ${input}"
+    
     if (fasta.toString().endsWith('.gz')) {
-        input = "temporary.fasta"
-        decompress_fasta = "gunzip -c ${fasta} > ${input}"
-        cleanup = "rm -f ${input}"
+        prepare_fasta = "gunzip -c ${fasta} | sed '/^>/s/ .*//' > ${input}"
+    }
+    else {
+        prepare_fasta = "sed '/^>/s/ .*//' ${fasta} > ${input}"
     }
     
     """
     # Prepare fasta file if gzipped
-    ${decompress_fasta}
+    ${prepare_fasta}
 
     # Scaffolds to genome
     grep "^>" "${input}" | sed 's/^>//' | awk -v prefix="${prefix}" '{print \$1"\\t"prefix}' > scaffolds_to_genomes.tsv

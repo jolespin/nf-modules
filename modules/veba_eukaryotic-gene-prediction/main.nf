@@ -106,19 +106,19 @@ process VEBA_EUKARYOTIC_GENE_PREDICTION {
     def db_name = db[0].baseName.replaceAll(/\..*/, '')
     def tiara_probabilities_arg = tiara_probabilities ? "-t ${tiara_probabilities}" : ''
 
-    def input = fasta
-    def decompress_fasta = ""
-    def cleanup = ""
-
+    def input = "temporary.fasta"
+    def cleanup = "rm -fv ${input}"
+    
     if (fasta.toString().endsWith('.gz')) {
-        input = "temporary.fasta"
-        decompress_fasta = "gunzip -c ${fasta} > ${input}"
-        cleanup = "rm -f ${input}"
+        prepare_fasta = "gunzip -c ${fasta} | sed '/^>/s/ .*//' > ${input}"
+    }
+    else {
+        prepare_fasta = "sed '/^>/s/ .*//' ${fasta} > ${input}"
     }
     
     """
     # Prepare fasta file if gzipped
-    ${decompress_fasta}
+    ${prepare_fasta}
 
     # Run VEBA Eukaryotic Gene Modeling Wrapper
     eukaryotic_gene_modeling_wrapper.py \\
@@ -232,19 +232,19 @@ process VEBA_EUKARYOTIC_GENE_PREDICTION_MANY {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def tiara_probabilities_arg = tiara_probabilities ? "-t ${tiara_probabilities}" : ''
 
-    def input = fasta
-    def decompress_fasta = ""
-    def cleanup = ""
+    def input = "temporary.fasta"
+    def cleanup = "rm -fv ${input}"
 
     if (fasta.toString().endsWith('.gz')) {
-        input = "temporary.fasta"
-        decompress_fasta = "gunzip -c ${fasta} > ${input}"
-        cleanup = "rm -f ${input}"
+        prepare_fasta = "gunzip -c ${fasta} | sed '/^>/s/ .*//' > ${input}"
+    }
+    else {
+        prepare_fasta = "sed '/^>/s/ .*//' ${fasta} > ${input}"
     }
     
     """
     # Prepare fasta file if gzipped
-    ${decompress_fasta}
+    ${prepare_fasta}
 
     # Run VEBA Eukaryotic Gene Modeling Wrapper
     eukaryotic_gene_modeling_wrapper.py \\
