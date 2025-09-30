@@ -17,21 +17,22 @@ workflow {
     // We create a meta map for the process and pair it with the fasta file.
     // The `autolineage` parameter is also required.
     fasta_with_meta = fasta_ch.map { file ->
-        def meta = [id: file.baseName]
+        def meta = [id: "test"]
         return [meta, file]
     }
     db_with_meta = db_ch.map { files ->
         def meta = [id: file(params.db).baseName]
         return [meta, files]
     }
+    //tiara_probabilities_ch = Channel.fromPath(params.tiara_probabilities, checkIfExists: true)
 
     // Run the process with the prepared channel.
     VEBA_EUKARYOTIC_GENE_PREDICTION(
         fasta_with_meta,
         db_with_meta,
-        "test",
+        [], //tiara_probabilities_ch,
         3000,
-	)
+        )
 
     // View the output to confirm the pipeline ran successfully.
     VEBA_EUKARYOTIC_GENE_PREDICTION.out.fa
