@@ -1,6 +1,6 @@
 # nf-modules
 
-NextFlow bioinformatics modules management tool
+`NextFlow` bioinformatics modules management tool
 
 ## Overview
 
@@ -20,7 +20,7 @@ Recommended minimal `NextFlow` project directory structure:
 ├── main.nf
 ├── modules/
 │   ├── external/ # nf-modules or other external modules
-│   ├── local/ # Your custom modules (e.g., assembly/main.nf)
+│   ├── local/ # Your custom modules (e.g., assembly.nf)
 │   └── nf-core/ # Official nf-core modules
 ├── bin/
 ├── .gitignore
@@ -51,7 +51,7 @@ nf-modules fetch -o modules/external pyrodigal spades
 
 # Fetch from specific git tag/branch
 nf-modules fetch -t v0.1.0 pyrodigal spades # Version
-nf-modules fetch -t dev pyrodigal spades # Branch
+nf-modules fetch -t dev -f pyrodigal spades # Branch (overwrite previous version with -f/--force)
 ```
 
 ## Commands
@@ -62,6 +62,7 @@ List all available modules in the repository.
 
 **Options:**
 - `-f, --format {list-name,list-version,yaml}`: Output format (default: list-name)
+- `-t, --tag TAG`: Git tag or branch to fetch from (default: main)
 - `--filter FILTER`: Filter modules by name pattern (case-insensitive substring match)
 
 **Output Formats:**
@@ -99,10 +100,24 @@ nf-modules fetch pyrodigal spades flye
 nf-modules fetch -o modules/external -t v1.0.0 pyrodigal spades
 ```
 
+## Utilities
+### compile-reads-table
+
+#### Illumina
+```bash
+compile-reads-table -f Fastq/ -n "[ID]_R[DIRECTION]_001.fastq.gz" -x fastq.gz
+```
+
+#### Oxford Nanopore / PacBio
+```bash
+compile-reads-table -f Fastq/ -n "[ID].merged.fastq" -x fastq -L
+```
+
 ## Requirements
 
 - Python 3.6+
 - PyYAML
+- Pandas ≥ 2.1.0
 
 ## Repository
 
