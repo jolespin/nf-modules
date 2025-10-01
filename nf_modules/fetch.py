@@ -14,8 +14,28 @@ def fetch_modules(args):
     module_names = args.modules
     output_directory = args.output_directory
     tag = args.tag
+    force = args.force
     
-    # Create output directory
+    # Check if any module directories already exist
+    existing_modules = []
+    for module_name in module_names:
+        module_path = os.path.join(output_directory, module_name)
+        if os.path.exists(module_path):
+            existing_modules.append(module_name)
+    
+    # If modules exist and --force not specified, error out
+    if existing_modules and not force:
+        print(f"Error: The following module(s) already exist in '{output_directory}':")
+        for module in existing_modules:
+            print(f"  - {module}")
+        print("\nUse --force to overwrite existing modules.")
+        sys.exit(1)
+    
+    # Warn user if overwriting
+    if existing_modules and force:
+        print(f"Warning: Overwriting {len(existing_modules)} existing module(s): {', '.join(existing_modules)}")
+    
+    # Create output directory if it doesn't exist
     os.makedirs(output_directory, exist_ok=True)
     
     # Download and extract
@@ -34,6 +54,11 @@ def fetch_modules(args):
             found_modules = set()
             
             for module_name in module_names:
+                # Remove existing module directory if force is enabled
+                module_path = os.path.join(output_directory, module_name)
+                if force and os.path.exists(module_path):
+                    shutil.rmtree(module_path)
+                
                 # Find the module directory in the tarball
                 members = [member for member in tarball.getmembers() if f"/modules/{module_name}/" in member.name]
                 

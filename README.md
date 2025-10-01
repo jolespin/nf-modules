@@ -50,7 +50,8 @@ nf-modules fetch pyrodigal spades
 nf-modules fetch -o modules/external pyrodigal spades
 
 # Fetch from specific git tag/branch
-nf-modules fetch -t v1.0.0 pyrodigal spades
+nf-modules fetch -t v0.1.0 pyrodigal spades # Version
+nf-modules fetch -t dev pyrodigal spades # Branch
 ```
 
 ## Commands

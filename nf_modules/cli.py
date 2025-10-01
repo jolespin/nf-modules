@@ -54,6 +54,11 @@ def main():
                 help='Git tag or branch to fetch from (default: main)'
             )
             subparser.add_argument(
+                '-f', '--force',
+                action='store_true',
+                help='Overwrite existing module directories'
+            )
+            subparser.add_argument(
                 'modules',
                 nargs='+',
                 help='One or more module names to fetch'
@@ -68,6 +73,11 @@ def main():
             subparser.add_argument(
                 '--filter',
                 help='Filter modules by name pattern (case-insensitive substring match)'
+            )
+            subparser.add_argument(
+                '-t', '--tag',
+                default='main',
+                help='Git tag or branch to list from (default: main)'
             )
     
     # Parse arguments
