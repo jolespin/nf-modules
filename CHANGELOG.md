@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `pykofamsearch` module
 - Added `minimap2_align` module
 - Added `strobealign` module
+- Added `diamond_blastp` module
 - Added `compleasm_run` module
 - Added `tiara` module
 - Added `veba_eukaryotic-gene-prediction` module
