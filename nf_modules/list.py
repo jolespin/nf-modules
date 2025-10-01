@@ -44,10 +44,11 @@ def parse_module_file(content):
 
 def list_modules(args):
     """List all available modules in the repository"""
-    repository_url = "https://api.github.com/repos/jolespin/nf-modules/tarball"
+    tag = getattr(args, 'tag', 'main')
+    repository_url = f"https://api.github.com/repos/jolespin/nf-modules/tarball/{tag}"
     
     try:
-        print("Fetching module list...", file=sys.stderr)
+        print(f"Fetching module list from tag '{tag}'...", file=sys.stderr)
         
         with tempfile.NamedTemporaryFile(suffix='.tar.gz', delete=False) as temporary_file:
             with urllib.request.urlopen(repository_url) as response:

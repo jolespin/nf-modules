@@ -23,6 +23,7 @@ setup(
     entry_points={
         "console_scripts": [
             "nf-modules=nf_modules.cli:main",
+            "compile-reads-table=nf_modules.compile_reads_table:main",
         ],
     },
     python_requires=">=3.6",

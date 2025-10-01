@@ -1,3 +1,3 @@
-tRNASCAN-se
+# tRNAscan-SE
 ## Unique Features
 * Outputs fasta file

@@ -68,6 +68,7 @@ process BARRNAP {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         barrnap: \$(echo \$(barrnap --version 2>&1) | sed 's/barrnap//; s/Using.*\$//' )
+        module: ${module_version}
     END_VERSIONS
     """
 

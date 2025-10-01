@@ -64,6 +64,7 @@ process PYRODIGAL {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         pyrodigal: \$(echo \$(pyrodigal --version 2>&1 | sed 's/pyrodigal v//'))
+        module: ${module_version}
     END_VERSIONS
     """
 

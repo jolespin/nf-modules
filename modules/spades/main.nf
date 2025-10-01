@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.1"
+def module_version = "2025.9.10"
 
 process SPADES {
     tag "$meta.id"
@@ -16,6 +16,7 @@ process SPADES {
     tuple val(meta), path(illumina), path(pacbio), path(nanopore)
     path hmm
     path yml
+    val program
 
     output:
     tuple val(meta), path('*.scaffolds.fa.gz')    , emit: scaffolds
@@ -25,7 +26,7 @@ process SPADES {
     tuple val(meta), path('*.assembly.gfa.gz')    , emit: gfa, optional: true
     tuple val(meta), path('*.spades.log')         , emit: log
     tuple val(meta), path('*.warnings.log')       , emit: warnings, optional: true
-    path "versions.yml"                            , emit: versions
+    path "versions.yml"                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -39,8 +40,9 @@ process SPADES {
     def nanopore_reads = nanopore ? "--nanopore $nanopore" : ""
     def custom_hmms = hmm ? "--custom-hmms $hmm" : ""
     def reads = yml ? "--dataset $yml" : "$illumina_reads $pacbio_reads $nanopore_reads"
+    def spades_program = program ?: 'spades.py' 
     """
-    spades.py \\
+    ${spades_program} \\
         $args \\
         --threads $task.cpus \\
         --memory $maxmem \\
@@ -90,6 +92,7 @@ process SPADES {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         spades: \$(spades.py --version 2>&1 | sed -n 's/^.*SPAdes genome assembler v//p')
+        module: ${module_version}
     END_VERSIONS
     """
 
@@ -113,7 +116,6 @@ process SPADES {
     "${task.process}":
         spades: \$(spades.py --version 2>&1 | sed -n 's/^.*SPAdes genome assembler v//p')
         module: ${module_version}
-
     END_VERSIONS
     """
 }

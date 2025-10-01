@@ -81,6 +81,7 @@ process TRNASCANSE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         tRNAscan-SE: \$(tRNAscan-SE 2>&1 >/dev/null | awk 'NR==2 {print \$2}')
+        module: ${module_version}
     END_VERSIONS
     """
 }
