@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.4"
+def module_version = "2025.10.23"
 
 process PYHMMSEARCH {
     tag "$meta.id---$dbmeta.id"
     label 'process_medium'
 
-    conda "bioconda::pyhmmsearch=2025.10.23"
-    container "docker.io/jolespin/pyhmmsearch:2025.10.23"
+    conda "bioconda::pyhmmsearch=2025.10.23.post1"
+    container "docker.io/jolespin/pyhmmsearch:2025.10.23.post1"
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     //     'https://depot.galaxyproject.org/singularity/pyhmmsearch:2025.9.4.post1--pyh7e72e81_0' :
     //     'biocontainers/pyhmmsearch:2025.9.4.post1--pyh7e72e81_0' }"
