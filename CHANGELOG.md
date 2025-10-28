@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## TBD - 
+- Added test data:
+  - Bacteria: 
+    - Species: `Escherichia coli str. K-12 substr. MG1655`
+    - RefSeq: `GCF_000005845.2`
+    - Files: `data/organisms/bacteria/e_coli.*.gz`
+
+  - Archaea: 
+    - Species: `Haloferax volcanii DS2`
+    - RefSeq: `GCF_000025685.1`
+    - Files: `data/organisms/archaea/h_volcanii.*.gz`
+
+  - Eukarya: 
+    - Species: `Saccharomyces cerevisiae S288C`
+    - RefSeq: `GCF_000146045.2`
+    - Files: `data/organisms/eukarya/yeast.*.gz`
+
+  - Virus: 
+    - Species: `Escherichia phage T7`
+    - RefSeq: `GCF_000844825.1`
+    - Files: `data/organisms/virus/phage.*.gz`
+
+
+Escherichia phage T7                    10760   ViralProj14460  GCF_000844825.1 RefSeq          Complete Genome 39937
+
+- Changed `${meta.id}.assembly.fasta.gz` to `${meta.id}.assembly.fa.gz` to be consistent with extension used by `SPAdes`
 - Updated `PyHMMSearch` to `v2025.10.23.post1` which includes `description` field of HMMs
 
 ## [0.1.1] - 2025-10-01

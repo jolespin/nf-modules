@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.1"
+def module_version = "2025.10.28"
 
 process FLYE {
     tag "$meta.id"
@@ -17,7 +17,7 @@ process FLYE {
     val mode
 
     output:
-    tuple val(meta), path("*.fasta.gz"), emit: fasta
+    tuple val(meta), path("*.fa.gz"), emit: fasta
     tuple val(meta), path("*.gfa.gz")  , emit: gfa
     tuple val(meta), path("*.gv.gz")   , emit: gv
     tuple val(meta), path("*.txt")     , emit: txt
@@ -45,8 +45,8 @@ process FLYE {
     # Process assembly.fasta with ID prefix
     if [ -f assembly.fasta ]; then
         # Add sample ID prefix to contig names
-        sed 's/^>/>'"${meta.id}"'__/' assembly.fasta > ${prefix}.assembly.fasta
-        gzip -f ${prefix}.assembly.fasta
+        sed 's/^>/>'"${meta.id}"'__/' assembly.fasta > ${prefix}.assembly.fa
+        gzip -f ${prefix}.assembly.fa
     fi
 
     # Process other files (no sequence ID modification needed)
