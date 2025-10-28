@@ -17,7 +17,7 @@ process FLYE {
     val mode
 
     output:
-    tuple val(meta), path("*.fa.gz"), emit: fasta
+    tuple val(meta), path("*.assembly.fa.gz"), emit: fasta
     tuple val(meta), path("*.gfa.gz")  , emit: gfa
     tuple val(meta), path("*.gv.gz")   , emit: gv
     tuple val(meta), path("*.txt")     , emit: txt

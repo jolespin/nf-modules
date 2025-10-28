@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.10"
+def module_version = "2025.10.28"
 
 process SPADES {
     tag "$meta.id"
@@ -19,7 +19,7 @@ process SPADES {
     val program
 
     output:
-    tuple val(meta), path('*.scaffolds.fa.gz')    , emit: scaffolds
+    tuple val(meta), path('*.assembly.fa.gz')    , emit: scaffolds
     tuple val(meta), path('*.contigs.fa.gz')      , emit: contigs
     tuple val(meta), path('*.transcripts.fa.gz')  , emit: transcripts, optional: true
     tuple val(meta), path('*.gene_clusters.fa.gz'), emit: gene_clusters, optional: true
@@ -55,8 +55,8 @@ process SPADES {
     # Process scaffolds with ID prefix
     if [ -f scaffolds.fasta ]; then
         # Add sample ID prefix to scaffold names
-        sed 's/^>/>'"${meta.id}"'__/' scaffolds.fasta > ${prefix}.scaffolds.fa
-        gzip -f ${prefix}.scaffolds.fa
+        sed 's/^>/>'"${meta.id}"'__/' scaffolds.fasta > ${prefix}.assembly.fa
+        gzip -f ${prefix}.assembly.fa
     fi
 
     # Process contigs with ID prefix  
@@ -99,8 +99,8 @@ process SPADES {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.scaffolds.fa
-    gzip ${prefix}.scaffolds.fa
+    touch ${prefix}.assembly.fa
+    gzip ${prefix}.assembly.fa
     touch ${prefix}.contigs.fa  
     gzip ${prefix}.contigs.fa
     touch ${prefix}.transcripts.fa

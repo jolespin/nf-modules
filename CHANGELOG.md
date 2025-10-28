@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 Escherichia phage T7                    10760   ViralProj14460  GCF_000844825.1 RefSeq          Complete Genome 39937
-
+- Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.assembly.fa.gz` to be consistent with extension used by `FLYE`
 - Changed `${meta.id}.assembly.fasta.gz` to `${meta.id}.assembly.fa.gz` to be consistent with extension used by `SPAdes`
 - Updated `PyHMMSearch` to `v2025.10.23.post1` which includes `description` field of HMMs
 
