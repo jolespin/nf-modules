@@ -11,7 +11,6 @@ process GTDBTK_CLASSIFYWF {
     tuple val(meta)   , path("bins/*")
     tuple val(db_name), path(db)
     val use_pplacer_scratch_dir
-    path mash_db
     val extension
 
     output:
@@ -34,7 +33,6 @@ process GTDBTK_CLASSIFYWF {
     def args            = task.ext.args ?: ''
     prefix              = task.ext.prefix ?: "${meta.id}"
     def pplacer_scratch = use_pplacer_scratch_dir ? "--scratch_dir pplacer_tmp" : ""
-    def mash_mode       = mash_db ? "--mash_db ${mash_db}" : "--skip_ani_screen"
     """
     export GTDBTK_DATA_PATH="\$(find -depth 3 -L ${db} -name 'metadata' -type d -exec dirname {} \\;)"
 
@@ -49,7 +47,6 @@ process GTDBTK_CLASSIFYWF {
         --out_dir ${prefix} \\
         --cpus ${task.cpus} \\
         --extension ${extension} \\
-        ${mash_mode} \\
         ${pplacer_scratch}
 
     mv ${prefix}/gtdbtk.log "${prefix}/${prefix}.log"
