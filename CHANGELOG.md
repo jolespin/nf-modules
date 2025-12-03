@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## TBD - 
+## [0.2.0] - 2025-12-02
 - Added test data:
   - Bacteria: 
     - Species: `Escherichia coli str. K-12 substr. MG1655`
@@ -26,12 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Species: `Escherichia phage T7`
     - RefSeq: `GCF_000844825.1`
     - Files: `data/organisms/virus/phage.*.gz`
-
-
-Escherichia phage T7                    10760   ViralProj14460  GCF_000844825.1 RefSeq          Complete Genome 39937
 - Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.assembly.fa.gz` to be consistent with extension used by `FLYE`
 - Changed `${meta.id}.assembly.fasta.gz` to `${meta.id}.assembly.fa.gz` to be consistent with extension used by `SPAdes`
 - Updated `PyHMMSearch` to `v2025.10.23.post1` which includes `description` field of HMMs
+- Added `gtdbtk_classifywf` module
+- Changed default location from `modules/external/` to `modules/local/nf-modules/` because `nf-core` throws error
 
 ## [0.1.1] - 2025-10-01
 - Added `CHANGELOG.md` for each module to track changes
