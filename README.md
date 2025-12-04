@@ -1,6 +1,6 @@
 # nf-modules
 
-`NextFlow` bioinformatics modules management tool
+`NextFlow` bioinformatics module management tool
 
 ## Overview
 
@@ -19,8 +19,7 @@ Recommended minimal `NextFlow` project directory structure:
 ├── nextflow.config
 ├── main.nf
 ├── modules/
-│   ├── external/ # nf-modules or other external modules
-│   ├── local/ # Your custom modules (e.g., assembly.nf)
+│   ├── local/nf-modules/ # Your custom modules (e.g., assembly.nf) and nf-modules (e.g., pyhmmsearch)
 │   └── nf-core/ # Official nf-core modules
 ├── bin/
 ├── .gitignore
@@ -43,11 +42,11 @@ nf-modules list --filter spades
 ### Fetch modules
 
 ```bash
-# Fetch modules to default directory (modules/external)
+# Fetch modules to default directory (modules/local/nf-modules/)
 nf-modules fetch pyrodigal spades
 
 # Fetch to custom directory
-nf-modules fetch -o modules/external pyrodigal spades
+nf-modules fetch -o modules/local/nf-modules/ pyrodigal spades
 
 # Fetch from specific git tag/branch
 nf-modules fetch -t v0.1.0 pyrodigal spades # Version
@@ -73,6 +72,7 @@ List all available modules in the repository.
     pyrodigal
     spades
     trnascanse
+    ...
     ```
 
 * yaml
@@ -89,7 +89,7 @@ List all available modules in the repository.
 Download modules from the repository to a local directory.
 
 **Options:**
-- `-o, --output-directory DIR`: Output directory (default: modules/external)
+- `-o, --output-directory DIR`: Output directory (default: modules/local/nf-modules/)
 - `-t, --tag TAG`: Git tag or branch to fetch from (default: main)
 - `modules`: One or more module names to fetch
 
@@ -97,7 +97,7 @@ Download modules from the repository to a local directory.
 ```bash
 nf-modules fetch pyrodigal
 nf-modules fetch pyrodigal spades flye
-nf-modules fetch -o modules/external -t v1.0.0 pyrodigal spades
+nf-modules fetch -o modules/local/nf-modules/ -t v1.0.0 pyrodigal spades
 ```
 
 ## Utilities
