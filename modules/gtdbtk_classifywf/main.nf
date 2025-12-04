@@ -60,9 +60,17 @@ process GTDBTK_CLASSIFYWF {
     mv ${prefix}/gtdbtk.warnings.log "${prefix}/${prefix}.warnings.log"
 
     # Merge taxonomy results
-    awk 'FNR==1 && NR==1 {print; next} FNR>1' \
-    "${prefix}/classify/${prefix}."{ar53,bac120}.summary.tsv \
-    2>/dev/null > "${prefix}/${prefix}.taxonomy.tsv" || true
+    if [ -f "${prefix}/classify/${prefix}.bac120.summary.tsv" ] && [ -f "${prefix}/classify/${prefix}.ar53.summary.tsv" ]; then
+        # Both files exist - merge them
+        cat "${prefix}/classify/${prefix}.bac120.summary.tsv" > "${prefix}/${prefix}.taxonomy.tsv"
+        tail -n +2 "${prefix}/classify/${prefix}.ar53.summary.tsv" >> "${prefix}/${prefix}.taxonomy.tsv"
+    elif [ -f "${prefix}/classify/${prefix}.bac120.summary.tsv" ]; then
+        # Only bac120 exists
+        cp "${prefix}/classify/${prefix}.bac120.summary.tsv" "${prefix}/${prefix}.taxonomy.tsv"
+    elif [ -f "${prefix}/classify/${prefix}.ar53.summary.tsv" ]; then
+        # Only ar53 exists
+        cp "${prefix}/classify/${prefix}.ar53.summary.tsv" "${prefix}/${prefix}.taxonomy.tsv"
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
