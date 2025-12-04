@@ -27,4 +27,4 @@ workflow {
     // View the output to confirm the pipeline ran successfully.
     PYRODIGAL.out.gff.view()
     PYRODIGAL.out.identifier_mapping.view()
-}
+}`

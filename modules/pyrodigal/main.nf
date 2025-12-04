@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.1"
+def module_version = "2025.12.4"
 
 process PYRODIGAL {
     tag "$meta.id"
@@ -31,6 +31,7 @@ process PYRODIGAL {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def attribute = task.ext.attribute ?: "gene_id"
     """
+    # Run pyrodigal and modify GFF in one pipe
     gzip -c -d -f ${fasta} | \\
     pyrodigal \\
         -j ${task.cpus} \\
@@ -39,33 +40,57 @@ process PYRODIGAL {
         -d ${prefix}.ffn \\
         -a ${prefix}.faa \\
         -s ${prefix}.score | \\
-    awk -v attr="${attribute}" '
-    BEGIN { FS=OFS="\\t" }
-    /^#/ { 
-        print; next 
-    }
-    {
-        if (NF >= 9 && \$9 ~ /ID=/) {
+    awk -F'\\t' -v prefix="${prefix}" '
+        /^#/ {
+            print
+            next
+        }
+        {
             contig_id = \$1
-            match(\$9, /ID=([^;]+)/, id_match)
-            if (id_match[1]) {
-                gene_id = id_match[1]
-                \$9 = \$9 ";contig_id=" contig_id ";gene_biotype=protein_coding;" attr "=" gene_id ";"
-            }
+            
+            # Extract ID from attributes (column 9) using string manipulation
+            gene_id = \$9
+            sub(/.*ID=/, "", gene_id)
+            sub(/;.*/, "", gene_id)
+            
+            # Add contig_id, gene_id, and gene_biotype to attributes
+            \$9 = \$9 ";contig_id=" contig_id ";gene_id=" gene_id ";gene_biotype=protein_coding"
+            
+            # Write to identifier mapping file (no header, explicit tabs)
+            print gene_id "\\t" contig_id "\\t" prefix >> prefix ".identifier_mapping.proteins.tsv"
+            
+            # Print modified GFF line
+            print \$0
         }
-        print
-    }' > ${prefix}.gff
+    ' OFS='\\t' > ${prefix}.gff
 
-    # Create identifier mapping file
-    awk -v genome_id="${prefix}" '
-    BEGIN { FS=OFS="\\t" }
-    !/^#/ && NF >= 9 && \$9 ~ /ID=/ {
-        contig_id = \$1
-        match(\$9, /ID=([^;]+)/, id_match)
-        if (id_match[1]) {
-            gene_id = id_match[1]
-            print gene_id, contig_id, genome_id
-        }
-    }' ${prefix}.gff > ${prefix}.identifier_mapping.proteins.tsv
-
+    # Compress all output files
     gzip -n -f ${prefix}.ffn \\
+               ${prefix}.faa \\
+               ${prefix}.gff \\
+               ${prefix}.score \\
+               ${prefix}.identifier_mapping.proteins.tsv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        pyrodigal: \$(echo \$(pyrodigal --version 2>&1 | sed 's/pyrodigal v//'))
+        module: ${module_version}
+    END_VERSIONS
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    echo "" | gzip > ${prefix}.gff.gz
+    echo "" | gzip > ${prefix}.ffn.gz
+    echo "" | gzip > ${prefix}.faa.gz
+    echo "" | gzip > ${prefix}.score.gz
+    echo "" | gzip > ${prefix}.identifier_mapping.proteins.tsv.gz
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        pyrodigal: \$(echo \$(pyrodigal --version 2>&1 | sed 's/pyrodigal v//'))
+        module: ${module_version}
+    END_VERSIONS
+    """
+}
