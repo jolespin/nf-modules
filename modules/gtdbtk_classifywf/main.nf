@@ -1,16 +1,20 @@
 process GTDBTK_CLASSIFYWF {
     tag "${meta.id}"
-    label 'process_high_memory'
-
-    conda "bioconda:gtdbtk=2.5.2"
+    label 'process_high'
+    // conda "bioconda:gtdbtk=2.5.2"
+    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+    //     'https://depot.galaxyproject.org/singularity/gtdbtk:2.5.2--pyh1f0d9b5_0' :
+    //     'quay.io/biocontainers/gtdbtk:2.5.2--pyh1f0d9b5_0' }"
+    conda "bioconda:gtdbtk=2.4.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/gtdbtk:2.5.2--pyh1f0d9b5_0' :
-        'quay.io/biocontainers/gtdbtk:2.5.2--pyh1f0d9b5_0' }"
+        'https://depot.galaxyproject.org/singularity/gtdbtk:2.4.1--pyhdfd78af_1' :
+        'quay.io/biocontainers/gtdbtk:2.4.1--pyhdfd78af_1' }"
 
     input:
     tuple val(meta)   , path("bins/*")
     tuple val(db_name), path(db)
     val use_pplacer_scratch_dir
+    path mash_db
     val extension
 
     output:
@@ -33,6 +37,8 @@ process GTDBTK_CLASSIFYWF {
     def args            = task.ext.args ?: ''
     prefix              = task.ext.prefix ?: "${meta.id}"
     def pplacer_scratch = use_pplacer_scratch_dir ? "--scratch_dir pplacer_tmp" : ""
+    def mash_mode       = mash_db ? "--mash_db ${mash_db}" : "--skip_ani_screen"
+
     """
     export GTDBTK_DATA_PATH="\$(find -L ${db} -maxdepth 3 -name 'metadata' -type d -exec dirname {} \\;)"
 
@@ -47,6 +53,7 @@ process GTDBTK_CLASSIFYWF {
         --out_dir ${prefix} \\
         --cpus ${task.cpus} \\
         --extension ${extension} \\
+        ${mash_mode} \\
         ${pplacer_scratch}
 
     mv ${prefix}/gtdbtk.log "${prefix}/${prefix}.log"
