@@ -62,7 +62,7 @@ process GTDBTK_CLASSIFYWF {
     # Merge taxonomy results
     awk 'FNR==1 && NR==1 {print; next} FNR>1' \
     "${prefix}/classify/${prefix}."{ar53,bac120}.summary.tsv \
-    2>/dev/null > "${prefix}.taxonomy.tsv" || true
+    2>/dev/null > "${prefix}/${prefix}.taxonomy.tsv" || true
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
