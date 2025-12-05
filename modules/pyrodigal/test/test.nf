@@ -13,7 +13,7 @@ workflow {
 
     // The tuple format is required by the process input.
     // We create a meta map for the process and pair it with the fasta file.
-    // The `autolineage` parameter is also required.
+    // The 'autolineage' parameter is also required.
     fasta_with_meta = fasta_ch.map { file ->
         def meta = [id: file.baseName]
         return [meta, file]
@@ -27,4 +27,4 @@ workflow {
     // View the output to confirm the pipeline ran successfully.
     PYRODIGAL.out.gff.view()
     PYRODIGAL.out.identifier_mapping.view()
-}`
+}

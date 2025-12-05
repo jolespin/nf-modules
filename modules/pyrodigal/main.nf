@@ -54,7 +54,7 @@ process PYRODIGAL {
             sub(/;.*/, "", gene_id)
             
             # Add contig_id, gene_id, and gene_biotype to attributes
-            \$9 = \$9 ";contig_id=" contig_id ";gene_id=" gene_id ";gene_biotype=protein_coding"
+            \$9 = \$9 "contig_id=" contig_id ";gene_id=" gene_id ";gene_biotype=protein_coding"
             
             # Write to identifier mapping file (no header, explicit tabs)
             print gene_id "\\t" contig_id "\\t" prefix >> prefix ".identifier_mapping.proteins.tsv"
