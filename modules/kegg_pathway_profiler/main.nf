@@ -28,7 +28,7 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}--KEGG"
     
     """
     # Build KO table
