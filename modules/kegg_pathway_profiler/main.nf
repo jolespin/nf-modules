@@ -46,7 +46,7 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
         -i kos.tsv.gz \\
         -o .
 
-    mv -v coverage.tsv.gz ${prefix}.pathway_coverage.tsv.gz
+    mv -v pathway_coverage.tsv.gz ${prefix}.pathway_coverage.tsv.gz
     mv -v pathway_output.pkl.gz ${prefix}.pathway_output.pkl.gz
 
     cat <<-END_VERSIONS > versions.yml
