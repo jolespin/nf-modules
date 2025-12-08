@@ -1,21 +1,21 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { PYHMMSEARCH } from "../main"
+include { PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH } from "../main"
 
 workflow {
-    // Define a dummy FASTA file for the pipeline to process.
-    // In a real scenario, this would be provided by the user.
-    // We are just simulating the channel input here.
-    // This assumes a file named 'test.fasta' exists in the same directory.
-    // Replace 'test.fasta' with your actual input file name.
-    fasta_ch = Channel.fromPath(params.fasta)
+    // Inputs
+    identifier_mapping_ch = Channel.fromPath(params.identifier_mapping, checkIfExists: true)
+    pykofamsearch_results_ch = Channel.fromPath(params.pykofamsearch_results, checkIfExists: true)
+    db_ch = Channel.fromPath(params.db, checkIfExists: true)
 
-    // The tuple format is required by the process input.
-    // We create a meta map for the process and pair it with the fasta file.
-    // The `autolineage` parameter is also required.
-    fasta_with_meta = fasta_ch.map { file ->
-        def meta = [id: file.baseName]
+    // Add meta
+    identifier_mapping_with_meta_ch = identifier_mapping_ch.map { file ->
+        def meta = [id: "all_samples"]
+        return [meta, file]
+    }
+    pykofamsearch_results_with_meta_ch = pykofamsearch_results_ch.map { file ->
+        def meta = [id: "all_samples"]
         return [meta, file]
     }
     db_with_meta = db_ch.map { files ->
@@ -24,17 +24,15 @@ workflow {
     }
 
     // Run the process with the prepared channel.
-    PYHMMSEARCH(
-	fasta_with_meta,
-    db_with_meta,
-	true,
-    true,
-    true,
+    PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH(
+        identifier_mapping_with_meta_ch,
+        pykofamsearch_results_with_meta_ch,
+        db_with_meta,
+        3,
 	)
 
     // View the output to confirm the pipeline ran successfully.
-    PYHMMSEARCH.out.output.view()
-    PYHMMSEARCH.out.reformatted_output.view()
-    PYHMMSEARCH.out.tblout.view()
-    PYHMMSEARCH.out.domtblout.view()
+    PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH.out.coverage_report.view()
+    PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH.out.serialized_results.view()
+
 }

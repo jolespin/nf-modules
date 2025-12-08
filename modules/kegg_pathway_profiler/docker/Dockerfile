@@ -1,4 +1,4 @@
-# v2025.10.27
+# v2025.12.4
 # =================================
 FROM mambaorg/micromamba:latest
 
@@ -18,8 +18,9 @@ RUN mkdir -p /volumes/working
 USER $MAMBA_USER
 
 # Install dependencies
-RUN micromamba install -y -n base -c bioconda -c conda-forge pip tqdm biopython pandas requests 'pyhmmer>=0.10.12,<0.11.0' procps-ng==4.0.4 && \
-    micromamba run -n base pip install --no-deps --no-cache pyhmmsearch==2025.10.23.post1 && \
+# tqdm==4.67.1 scipy==1.16.3 pandas==2.3.3 numpy==2.3.5 networkx==3.6
+RUN micromamba install -y -n base -c bioconda -c conda-forge pip python==3.13.10 procps-ng==4.0.4 && \
+    micromamba run -n base pip install --no-cache kegg_pathway_profiler==2025.12.4 pyexeggutor && \
     micromamba clean -a -y -f
 
 ENTRYPOINT ["/usr/local/bin/_entrypoint.sh"]
