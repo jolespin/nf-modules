@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-12-05
+- Added `identifier_mapping.proteins.tsv.gz` to each test organism
+- Added `pykofamsearch_results.tsv.gz` to each test organism
+- Added `kegg_pathway_profiler` module
+- Reverted version from `gtdbtk_classifywf` from `2.5.2` to `2.4.1` because of significant performance issues with recomputing sketches [see GTDB-Tk issue #665](https://github.com/Ecogenomics/GTDBTk/issues/665)
+
 ## [0.2.0] - 2025-12-02
 - Added test data:
   - Bacteria: 
