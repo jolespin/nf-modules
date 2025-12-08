@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.12.4"
+def module_version = "2025.12.5"
 
 process PYRODIGAL {
     tag "$meta.id"
@@ -20,7 +20,7 @@ process PYRODIGAL {
     tuple val(meta), path("*.ffn.gz")                   , emit: ffn
     tuple val(meta), path("*.faa.gz")                   , emit: faa
     tuple val(meta), path("*.score.gz")                 , emit: score
-    tuple val(meta), path("*identifier_mapping.proteins.tsv.gz"), emit: identifier_mapping
+    tuple val(meta), path("*.identifier_mapping.proteins.tsv.gz"), emit: identifier_mapping
     path "versions.yml"                                 , emit: versions
 
     when:
