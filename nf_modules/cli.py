@@ -45,8 +45,8 @@ def main():
         if cmd == 'fetch':
             subparser.add_argument(
                 '-o', '--output-directory',
-                default='modules/external',
-                help='Output directory to download modules (default: modules/external)'
+                default='modules/local/nf-modules/',
+                help='Output directory to download modules (default: modules/local/nf-modules/)'
             )
             subparser.add_argument(
                 '-t', '--tag',

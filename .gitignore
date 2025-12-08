@@ -1,6 +1,9 @@
 # Nextflow pipeline working directory and cache
 .nextflow/
+.nextflow.*
+
 **/work/
+**/deprecated/
 
 
 # Temporary files and intermediate data
