@@ -100,7 +100,7 @@ process PYKOFAMSEARCH {
     ${reformat_command}
 
     # Gzip main output
-    gzip -n -f ${prefix}.tsv
+    gzip -n -f ${prefix}.output.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
