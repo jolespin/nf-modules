@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.4"
+def module_version = "2025.12.8"
 
 process PYKOFAMSEARCH {
     tag "$meta.id---$dbmeta.id"
@@ -21,9 +21,9 @@ process PYKOFAMSEARCH {
 
 
     output:
-    tuple val(meta), val(dbmeta), path('*.tsv.gz')   , emit: output
+    tuple val(meta), val(dbmeta), path('*.output.tsv.gz')               , emit: output
     tuple val(meta), val(dbmeta), path('*.reformatted.tsv.gz')   , emit: reformatted_output    , optional: true
-    path "versions.yml"                 , emit: versions
+    path "versions.yml"                                                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -79,7 +79,7 @@ process PYKOFAMSEARCH {
     }
 
     def database_argument = is_serialized_database ? "-b ${db}" : "-d ${db}"
-    def reformat_command = write_reformatted_output ? "reformat_pykofamsearch -i ${prefix}.tsv -o ${prefix}.reformatted.tsv.gz" : ''
+    def reformat_command = write_reformatted_output ? "reformat_pykofamsearch -i ${prefix}.output.tsv -o ${prefix}.reformatted.tsv.gz" : ''
 
     """
     # Create temporary file
@@ -91,7 +91,7 @@ process PYKOFAMSEARCH {
         --n_jobs $task.cpus \\
         ${database_argument} \\
         -i concatenated_input.fasta \\
-        -o ${prefix}.tsv
+        -o ${prefix}.output.tsv
 
     # Remove temporary file
     rm -v concatenated_input.fasta
@@ -112,7 +112,7 @@ process PYKOFAMSEARCH {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}--${dbmeta.id}"
     """
-    touch "${prefix}.tsv.gz"
+    touch "${prefix}.output.tsv.gz"
     ${write_reformatted_output ? "touch ${prefix}.reformatted.tsv.gz" : ''}
 
     cat <<-END_VERSIONS > versions.yml
