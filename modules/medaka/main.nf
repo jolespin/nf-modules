@@ -20,16 +20,30 @@ process MEDAKA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+
+    // Handle gzipped reference files
+    def decompress_cmd = ""
+    def input_file = assembly
+    def cleanup_cmd = ""
+    
+    if (assembly.toString().endsWith('.gz')) {
+        basename = assembly.baseName
+        input_file = basename
+        decompress_cmd = "gunzip -c ${assembly} > ${input_file}"
+        cleanup_cmd = "rm -f ${input_file}"
+    }
+
     """
+    ${decompress_cmd}
+
     medaka_consensus \\
         -t $task.cpus \\
         $args \\
         -i $reads \\
-        -d $assembly \\
+        -d $input_file \\
         -o ./
 
-    # Process consensus.fasta with ID prefix
-    sed 's/^>/>'"${meta.id}"'__/' consensus.fasta > ${prefix}.fa
+    mv consensus.fasta ${prefix}.fa
     gzip -n -f ${prefix}.fa
 
     cat <<-END_VERSIONS > versions.yml
