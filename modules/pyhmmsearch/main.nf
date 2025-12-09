@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.10.23"
+def module_version = "2025.12.8"
 
 process PYHMMSEARCH {
     tag "$meta.id---$dbmeta.id"
@@ -21,11 +21,11 @@ process PYHMMSEARCH {
     val(write_domain)
 
     output:
-    tuple val(meta), val(dbmeta), path('*.tsv.gz')   , emit: output
-    tuple val(meta), val(dbmeta), path('*.reformatted.tsv.gz')   , emit: reformatted_output    , optional: true
-    tuple val(meta), val(dbmeta), path('*.tblout.gz'), emit: tblout, optional: true
-    tuple val(meta), val(dbmeta), path('*.domtblout.gz'), emit: domtblout, optional: true
-    path "versions.yml"                 , emit: versions
+    tuple val(meta), val(dbmeta), path('*.output.tsv.gz')                            , emit: output
+    tuple val(meta), val(dbmeta), path('*.reformatted.tsv.gz')                       , emit: reformatted_output    , optional: true
+    tuple val(meta), val(dbmeta), path('*.tblout.gz')                                , emit: tblout, optional: true
+    tuple val(meta), val(dbmeta), path('*.domtblout.gz')                             , emit: domtblout, optional: true
+    path "versions.yml"                                                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -83,7 +83,7 @@ process PYHMMSEARCH {
 
     def tblout_argument = write_target ? "--tblout ${prefix}.tblout.gz" : ""
     def domtblout_argument = write_target ? "--domtblout ${prefix}.domtblout.gz" : ""
-    def reformat_command = write_reformatted_output ? "reformat_pyhmmsearch -i ${prefix}.tsv -o ${prefix}.reformatted.tsv.gz" : ''
+    def reformat_command = write_reformatted_output ? "reformat_pyhmmsearch -i ${prefix}.output.tsv -o ${prefix}.reformatted.tsv.gz" : ''
 
     """
     # Create temporary file
@@ -97,7 +97,7 @@ process PYHMMSEARCH {
         -i concatenated_input.fasta \\
         ${tblout_argument} \\
         ${domtblout_argument} \\
-        -o ${prefix}.tsv
+        -o ${prefix}.output.tsv
 
     # Remove temporary file
     rm -v concatenated_input.fasta
@@ -106,7 +106,7 @@ process PYHMMSEARCH {
     ${reformat_command}
 
     # Gzip main output
-    gzip -n -f ${prefix}.tsv
+    gzip -n -f ${prefix}.output.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

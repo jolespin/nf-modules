@@ -19,8 +19,8 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     val(identifier_mapping_format)
 
     output:
-    tuple val(meta), path("pathway_coverage.tsv.gz"), emit: coverage_report
-    tuple val(meta), path("pathway_output.pkl.gz")  , emit: serialized_results
+    tuple val(meta), path("*.pathway_coverage.tsv.gz"), emit: coverage_report
+    tuple val(meta), path("*.pathway_output.pkl.gz")  , emit: serialized_results
     path "versions.yml"                             , emit: versions
 
     when:
@@ -28,7 +28,7 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
 
     script:
     def args = task.ext.args ?: ''
-    // def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}--KEGG"
     
     """
     # Build KO table
@@ -46,6 +46,9 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
         -i kos.tsv.gz \\
         -o .
 
+    mv -v pathway_coverage.tsv.gz ${prefix}.pathway_coverage.tsv.gz
+    mv -v pathway_output.pkl.gz ${prefix}.pathway_output.pkl.gz
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         kegg_pathway_profiler: \$(python -c 'import kegg_pathway_profiler as kpp; print(kpp.__version__)')
@@ -54,10 +57,10 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     """
 
     stub:
-    // def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch "pathway_coverage.tsv.gz"
-    touch "pathway_output.pkl.gz"
+    touch "${prefix}.pathway_coverage.tsv.gz"
+    touch "${prefix}.pathway_output.pkl.gz"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
