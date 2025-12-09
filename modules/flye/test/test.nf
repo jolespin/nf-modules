@@ -5,17 +5,17 @@ include { FLYE } from "../main"
 
 workflow {
     // Define a dummy FASTA file for the pipeline to process.
-    fastq_ch = Channel.fromPath(params.fastq)
+    fasta_ch = Channel.fromPath(params.fasta)
 
     // The tuple format is required by the process input.
-    fastq_with_meta = fastq_ch.map { file ->
-        def meta = [id: "ecoli"]
+    fasta_with_meta = fasta_ch.map { file ->
+        def meta = [id: file.baseName]
         return [meta, file]
     }
 
     // Run the process with the prepared channel.
     FLYE(
-        fastq_with_meta,
+        fasta_with_meta,
         "--nano-hq",
 	)
 
