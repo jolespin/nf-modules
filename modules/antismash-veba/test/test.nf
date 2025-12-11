@@ -1,28 +1,34 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { MEDAKA } from "../main"
+include { ANTISMASH } from "../main"
 
 workflow {
     // Define a dummy FASTA file for the pipeline to process.
-    fastq_ch = Channel.fromPath(params.fastq)
     fasta_ch = Channel.fromPath(params.fasta)
+    gff_ch = Channel.fromPath(params.gff)
+    db_ch = file(params.db, type: 'dir')
 
 
     // The tuple format is required by the process input.
-    fastq_with_meta = fastq_ch.map { file ->
-        [[id: "ecoli"], file]
-    }
+
     fasta_with_meta = fasta_ch.map { file ->
         [[id: "ecoli"], file]
     }
-    combined_ch = fastq_with_meta.join(fasta_with_meta)
+
 
     // Run the process with the prepared channel.
-    MEDAKA(
-        combined_ch,
+    ANTISMASH(
+        fasta_with_meta,
+        db_ch,
+        gff_ch,
+	true,
+	true,
+	true,
+	true,
+	true,
 	)
 
     // View the output to confirm the pipeline ran successfully.
-    MEDAKA.out.assembly.view()
+    ANTISMASH.out.gbk_input.view()
 }
