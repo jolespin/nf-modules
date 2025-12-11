@@ -23,7 +23,7 @@ USER $MAMBA_USER
 COPY --chown=$MAMBA_USER:$MAMBA_USER ./bin/ ./bin/
 
 # Install dependencies
-RUN micromamba install -y -n base -c bioconda -c conda-forge antismash==8.0.4 biopython tqdm 'pandas>=2' && \ 
+RUN micromamba install -y -n base -c bioconda -c conda-forge antismash==8.0.4 biopython tqdm 'pandas>=2' procps-ng==4.0.4 && \ 
     micromamba clean -a -y -f
 
 # Add additional scripts to environment bin
