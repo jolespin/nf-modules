@@ -5,9 +5,8 @@ process ANTISMASH {
     container "docker.io/jolespin/antismash-veba:8.0.4"
 
     input:
-    tuple val(meta), path(assembly_fasta)
+    tuple val(meta), path(assembly_fasta), path(gff)
     path databases
-    path gff
     val cc_mibig                                                          // Run a comparison against the MIBiG dataset
     val cb_general                                                        // Compare identified clusters against a database of antiSMASH-predicted clusters.
     val cb_subclusters                                                    // Compare identified clusters against known subclusters responsible for synthesising precursors.

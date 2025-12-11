@@ -15,18 +15,20 @@ workflow {
     fasta_with_meta = fasta_ch.map { file ->
         [[id: "ecoli"], file]
     }
-
+    gff_with_meta = gff_ch.map { file ->
+        [[id: "ecoli"], file]
+    }
+    input_ch = fasta_with_meta.join(gff_with_meta)
 
     // Run the process with the prepared channel.
     ANTISMASH(
-        fasta_with_meta,
+        input_ch,
         db_ch,
-        gff_ch,
-	true,
-	true,
-	true,
-	true,
-	true,
+        true,
+        true,
+        true,
+        true,
+        true,
 	)
 
     // View the output to confirm the pipeline ran successfully.
