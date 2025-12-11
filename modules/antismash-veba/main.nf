@@ -27,7 +27,7 @@ process ANTISMASH {
     tuple val(meta), path("${prefix}/knownclusterblast/*_c*.txt")         , emit: knownclusterblast_txt      , optional: true
     tuple val(meta), path("${prefix}/svg/clusterblast*.svg")              , emit: svg_files_clusterblast     , optional: true
     tuple val(meta), path("${prefix}/svg/knownclusterblast*.svg")         , emit: svg_files_knownclusterblast, optional: true
-    tuple val(meta), path("${prefix}/bgcs/*region*.gbk.gz")               , emit: gbk_results                , optional: true
+    tuple val(meta), path("${prefix}/bgc_genbanks/*region*.gbk.gz")       , emit: gbk_results                , optional: true
     tuple val(meta), path("${prefix}/clusterblastoutput.txt")             , emit: clusterblastoutput         , optional: true
     tuple val(meta), path("${prefix}/knownclusterblastoutput.txt")        , emit: knownclusterblastoutput    , optional: true
     // VEBA Files
@@ -104,12 +104,12 @@ process ANTISMASH {
         ${assembly_fasta_file}
 
     # VEBA reformat
-    ${veba_reformat_flag}
+    ${veba_reformat_flag} 2>/dev/null || true
 
-    # Move BGC genbanks
-    mkdir -p ${prefix}/bgcs/
+    # Move BGC genbanks (if any exist)
+    mkdir -p ${prefix}/bgc_genbanks/
     gzip -v -f -n ${prefix}/*.gbk
-    mv ${prefix}/*.region*.gbk.gz ${prefix}/bgcs/
+    mv ${prefix}/*.region*.gbk.gz ${prefix}/bgc_genbanks/ 2>/dev/null || true
     
     # Clean up
     ${gff_cleanup}
@@ -127,8 +127,8 @@ process ANTISMASH {
     mkdir -p ${prefix}/css
     mkdir ${prefix}/images
     mkdir ${prefix}/js
-    touch ${prefix}/bgcs/NZ_CP069563.1.region001.gbk.gz
-    touch ${prefix}/bgcs/NZ_CP069563.1.region002.gbk.gz
+    touch ${prefix}/bgc_genbanks/NZ_CP069563.1.region001.gbk.gz
+    touch ${prefix}/bgc_genbanks/NZ_CP069563.1.region002.gbk.gz
     touch ${prefix}/css/bacteria.css
     touch ${prefix}/genome.gbk.gz
     touch ${prefix}/genome.json
