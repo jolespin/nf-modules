@@ -101,6 +101,10 @@ process ANTISMASH {
         --genefinding-tool none \\
         --logfile ${prefix}/${prefix}.log \\
         --databases ${databases} \\
+        ${cc_mibig_flag} \\
+        ${cb_general_flag} \\
+        ${cb_subclusters_flag} \\
+        ${cb_knownclusters_flag} \\
         ${assembly_fasta_file}
 
     # VEBA reformat
