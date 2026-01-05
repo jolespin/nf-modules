@@ -128,9 +128,9 @@ process ANTISMASH {
 
     # Reformat clusterblast
     ${cluster_reformatter}
-    ${cb_general_cleanup}
-    ${cb_knownclusters_cleanup}
-    ${cb_subclusters_cleanup}
+    ${cb_general_cleanup} 2>/dev/null || true
+    ${cb_knownclusters_cleanup} 2>/dev/null || true
+    ${cb_subclusters_cleanup} 2>/dev/null || true
 
     # Clean up
     gzip -v -f -n ${prefix}/*.json
