@@ -62,7 +62,7 @@ process ANTISMASH {
         cb_knownclusters ? "--cb-knownclusters" : ""
     ].findAll { it }.join(" ")
 
-    def cluster_reformatter = cb_flags ? "reformat_antismash_clusterblast.py -i ${prefix} -o clusterblast_results.tsv.gz" : ""
+    def cluster_reformatter = cb_flags ? "reformat_antismash_clusterblast.py -i ${prefix} -o ${prefix}/clusterblast_results.tsv.gz" : ""
 
     // Handle assembly_fasta decompression
     def assembly_fasta_file = ""
