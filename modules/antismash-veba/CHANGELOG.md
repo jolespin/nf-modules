@@ -5,7 +5,6 @@ All notable changes to this module will be documented in this file.
 ## v2026.1.2 - 2026-1-2
 * Archive `clusterblast/`, `subclusterblast/`, and `knowclusterblast/` when applicable (`.tar.gz`)
 * Gzip the json file
-* Changed default output to `.` instead of `${prefix}`
 * Added `taxon` input `choices: {bacteria, fungi}`
 * Added `reformat_antismash_clusterblast.py` from `VEBA`
 

@@ -23,6 +23,7 @@ workflow {
     // Run the process with the prepared channel.
     ANTISMASH(
         input_ch,
+        "bacteria",
         db_ch,
         true,
         true,

@@ -62,7 +62,7 @@ process ANTISMASH {
         cb_knownclusters ? "--cb-knownclusters" : ""
     ].findAll { it }.join(" ")
 
-    def cluster_reformatter = cb_flags ? "reformat_antismash_clusterblast.py -i . -o clusterblast_results.tsv.gz" : ""
+    def cluster_reformatter = cb_flags ? "reformat_antismash_clusterblast.py -i ${prefix} -o clusterblast_results.tsv.gz" : ""
 
     // Handle assembly_fasta decompression
     def assembly_fasta_file = ""
@@ -107,7 +107,7 @@ process ANTISMASH {
         ${gff_flag} \\
         -c ${task.cpus} \\
         --html-title ${prefix} \\
-        --output-dir . \\
+        --output-dir ${prefix} \\
         --output-basename ${prefix} \\
         --genefinding-tool none \\
         --logfile ${prefix}/${prefix}.log \\
@@ -122,9 +122,9 @@ process ANTISMASH {
     ${veba_reformat_flag} 2>/dev/null || true
 
     # Move BGC genbanks (if any exist)
-    mkdir -p bgc_genbanks/
-    gzip -v -f -n *.gbk
-    mv -v *.region*.gbk.gz bgc_genbanks/ 2>/dev/null || true
+    mkdir -p ${prefix}/bgc_genbanks/
+    gzip -v -f -n ${prefix}/*.gbk
+    mv -v ${prefix}/*.region*.gbk.gz ${prefix}/bgc_genbanks/ 2>/dev/null || true
 
     # Reformat clusterblast
     ${cluster_reformatter}
@@ -133,7 +133,7 @@ process ANTISMASH {
     ${cb_subclusters_cleanup}
 
     # Clean up
-    gzip -v -f -n *.json
+    gzip -v -f -n ${prefix}/*.json
     ${gff_cleanup}
     ${sequence_cleanup}
 
