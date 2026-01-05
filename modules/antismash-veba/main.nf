@@ -23,12 +23,14 @@ process ANTISMASH {
     tuple val(meta), path("${prefix}/index.html")                         , emit: html
     tuple val(meta), path("${prefix}/regions.js")                         , emit: json_sideloading
 
-    // Clusterblast Files
-    tuple val(meta), path("${prefix}/clusterblast_results.tsv.gz")        , emit: clusterblast_results       , optional: true
-    tuple val(meta), path("${prefix}/clusterblast.tar.gz")                , emit: clusterblast_archive       , optional: true
-    tuple val(meta), path("${prefix}/knownclusterblast.tar.gz")           , emit: knownclusterblast_archive  , optional: true
-    tuple val(meta), path("${prefix}/subclusterblast.tar.gz")             , emit: subclusterblast_archive    , optional: true
+    // Genbanks
     tuple val(meta), path("${prefix}/bgc_genbanks/*region*.gbk.gz")       , emit: gbk_results                , optional: true
+
+    // Clusterblast Files
+    tuple val(meta), path("${prefix}/clusterblast_reformatted/clusterblast_results.tsv.gz")        , emit: clusterblast_results       , optional: true
+    tuple val(meta), path("${prefix}/clusterblast_reformatted/clusterblast.tar.gz")                , emit: clusterblast_archive       , optional: true
+    tuple val(meta), path("${prefix}/clusterblast_reformatted/knownclusterblast.tar.gz")           , emit: knownclusterblast_archive  , optional: true
+    tuple val(meta), path("${prefix}/clusterblast_reformatted/subclusterblast.tar.gz")             , emit: subclusterblast_archive    , optional: true
 
     // VEBA Files
     tuple val(meta), path("${prefix}/veba_reformatted/identifier_mapping.components.tsv.gz"), emit: identifier_mapping_components, optional: true
@@ -53,16 +55,16 @@ process ANTISMASH {
     def cb_subclusters_flag = cb_subclusters ? "--cb-subclusters" : ""
     def cb_knownclusters_flag = cb_knownclusters ? "--cb-knownclusters" : ""
     def veba_reformat_flag = reformat_with_veba ? "biosynthetic_genbanks_to_table.py -i ${prefix} -n ${prefix} -o ${prefix}/veba_reformatted --sample ${prefix}" : ""
-    def cb_general_cleanup = cb_general ? "tar zcfv ${prefix}/clusterblast.tar.gz ${prefix}/clusterblast && rm -rfv ${prefix}/clusterblast" : ""
-    def cb_knownclusters_cleanup = cb_general ? "tar zcfv ${prefix}/knownclusterblast.tar.gz ${prefix}/knownclusterblast && rm -rfv ${prefix}/knownclusterblast" : ""
-    def cb_subclusters_cleanup = cb_general ? "tar zcfv ${prefix}/subclusterblast.tar.gz ${prefix}/subclusterblast && rm -rfv ${prefix}/subclusterblast" : ""
+    def cb_general_cleanup = cb_general ? "tar zcfv ${prefix}/clusterblast_reformatted/clusterblast.tar.gz ${prefix}/clusterblast && rm -rfv ${prefix}/clusterblast" : ""
+    def cb_knownclusters_cleanup = cb_general ? "tar zcfv ${prefix}/clusterblast_reformatted/knownclusterblast.tar.gz ${prefix}/knownclusterblast && rm -rfv ${prefix}/knownclusterblast" : ""
+    def cb_subclusters_cleanup = cb_general ? "tar zcfv ${prefix}/clusterblast_reformatted/subclusterblast.tar.gz ${prefix}/subclusterblast && rm -rfv ${prefix}/subclusterblast" : ""
     def cb_flags = [
         cb_general ? "--cb-general" : "",
         cb_subclusters ? "--cb-subclusters" : "",
         cb_knownclusters ? "--cb-knownclusters" : ""
     ].findAll { it }.join(" ")
 
-    def cluster_reformatter = cb_flags ? "reformat_antismash_clusterblast.py -i ${prefix} -o ${prefix}/clusterblast_results.tsv.gz" : ""
+    def cluster_reformatter = cb_flags ? "mkdir -pv ${prefix}/clusterblast_reformatted/ && reformat_antismash_clusterblast.py -i ${prefix} -o ${prefix}/clusterblast_reformatted/clusterblast_results.tsv.gz" : ""
 
     // Handle assembly_fasta decompression
     def assembly_fasta_file = ""
