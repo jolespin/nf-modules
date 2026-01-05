@@ -1,4 +1,4 @@
-# v2025.12.11
+# v2026.1.2
 # =================================
 FROM mambaorg/micromamba:latest
 
@@ -29,6 +29,7 @@ RUN micromamba install -y -n base -c bioconda -c conda-forge antismash==8.0.4 bi
 # Add additional scripts to environment bin
 RUN cp -rf ./bin/biosynthetic_genbanks_to_table.py /opt/conda/bin/ 
 RUN cp -rf ./bin/compile_protein_cluster_prevalence_table.py /opt/conda/bin/ 
+RUN cp -rf ./bin/reformat_antismash_clusterblast.py /opt/conda/bin/ 
 
 # The following section is regarding caching and permission issues:
 # https://github.com/nf-core/modules/blob/master/modules/nf-core/antismash/README.md
