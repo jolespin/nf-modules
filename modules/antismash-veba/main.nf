@@ -53,9 +53,9 @@ process ANTISMASH {
     def cb_subclusters_flag = cb_subclusters ? "--cb-subclusters" : ""
     def cb_knownclusters_flag = cb_knownclusters ? "--cb-knownclusters" : ""
     def veba_reformat_flag = reformat_with_veba ? "biosynthetic_genbanks_to_table.py -i ${prefix} -n ${prefix} -o ${prefix}/veba_reformatted --sample ${prefix}" : ""
-    def cb_general_cleanup = cb_general ? "tar zcfv clusterblast.tar.gz clusterblast" : ""
-    def cb_knownclusters_cleanup = cb_general ? "tar zcfv knownclusterblast.tar.gz knownclusterblast" : ""
-    def cb_subclusters_cleanup = cb_general ? "tar zcfv subclusterblast.tar.gz subclusterblast" : ""
+    def cb_general_cleanup = cb_general ? "tar zcfv ${prefix}/clusterblast.tar.gz ${prefix}/clusterblast && rm -rfv ${prefix}/clusterblast" : ""
+    def cb_knownclusters_cleanup = cb_general ? "tar zcfv ${prefix}/knownclusterblast.tar.gz ${prefix}/knownclusterblast && rm -rfv ${prefix}/knownclusterblast" : ""
+    def cb_subclusters_cleanup = cb_general ? "tar zcfv ${prefix}/subclusterblast.tar.gz ${prefix}/subclusterblast && rm -rfv ${prefix}/subclusterblast" : ""
     def cb_flags = [
         cb_general ? "--cb-general" : "",
         cb_subclusters ? "--cb-subclusters" : "",
