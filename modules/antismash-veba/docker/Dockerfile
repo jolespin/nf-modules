@@ -1,4 +1,4 @@
-# v2026.1.2
+# v2026.1.5
 # =================================
 FROM mambaorg/micromamba:latest
 
@@ -27,15 +27,16 @@ RUN micromamba install -y -n base -c bioconda -c conda-forge antismash==8.0.4 bi
     micromamba clean -a -y -f
 
 # Add additional scripts to environment bin
-RUN cp -rf ./bin/biosynthetic_genbanks_to_table.py /opt/conda/bin/ 
-RUN cp -rf ./bin/compile_protein_cluster_prevalence_table.py /opt/conda/bin/ 
-RUN cp -rf ./bin/reformat_antismash_clusterblast.py /opt/conda/bin/ 
+RUN install -m 775 ./bin/biosynthetic_genbanks_to_table.py \
+                   ./bin/compile_protein_cluster_prevalence_table.py \
+                   ./bin/reformat_antismash_clusterblast.py \
+                   /opt/conda/bin/
 
 # The following section is regarding caching and permission issues:
 # https://github.com/nf-core/modules/blob/master/modules/nf-core/antismash/README.md
 ## Speeds up slightly builds: https://github.com/antismash/antismash/issues/837#issuecomment-2893858536
 ## From: https://github.com/antismash/containers/blob/main/standalone-lite/Dockerfile#L25
-# ENV PYTHON="/opt/conda/bin/python3"
+ENV MPLCONFIGDIR=/tmp/matplotlib
 RUN mkdir -p /tmp/matplotlib && MPLCONFIGDIR=/tmp/matplotlib python -c "import matplotlib.pyplot as plt" && chmod -R a+rw /tmp/matplotlib
 
 # Download the antiSMASH database, needed for the prepare-data process
