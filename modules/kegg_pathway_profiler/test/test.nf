@@ -32,7 +32,8 @@ workflow {
 	)
 
     // View the output to confirm the pipeline ran successfully.
-    PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH.out.coverage_report.view()
+    PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH.out.pathway_coverage.view()
+    PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH.out.step_coverage.view()
     PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH.out.serialized_results.view()
 
 }
