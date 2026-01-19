@@ -7,7 +7,7 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     tag "$meta.id"
     label 'process_low'
 
-    container "docker.io/jolespin/kegg_pathway_profiler:2025.12.4"
+    container "docker.io/jolespin/kegg_pathway_profiler:2025.12.18"
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     //     'https://depot.galaxyproject.org/singularity/pyhmmsearch:2025.9.4.post1--pyh7e72e81_0' :
     //     'biocontainers/pyhmmsearch:2025.9.4.post1--pyh7e72e81_0' }"
@@ -19,7 +19,8 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     val(identifier_mapping_format)
 
     output:
-    tuple val(meta), path("*.pathway_coverage.tsv.gz"), emit: coverage_report
+    tuple val(meta), path("*.pathway_coverage.tsv.gz"), emit: pathway_coverage
+    tuple val(meta), path("*.step_coverage.tsv.gz"), emit: step_coverage
     tuple val(meta), path("*.pathway_output.pkl.gz")  , emit: serialized_results
     path "versions.yml"                             , emit: versions
 
@@ -47,6 +48,7 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
         -o .
 
     mv -v pathway_coverage.tsv.gz ${prefix}.pathway_coverage.tsv.gz
+    mv -v step_coverage.tsv.gz  ${prefix}.step_coverage.tsv.gz 
     mv -v pathway_output.pkl.gz ${prefix}.pathway_output.pkl.gz
 
     cat <<-END_VERSIONS > versions.yml
