@@ -5,6 +5,15 @@
 **/work/
 **/deprecated/
 
+# Misc
+data/reads/illumina/toy_plastisphere/S1_1.fastq.gz
+data/reads/illumina/toy_plastisphere/S1_2.fastq.gz
+data/reads/illumina/toy_plastisphere/S2_1.fastq.gz
+data/reads/illumina/toy_plastisphere/S2_2.fastq.gz
+data/reads/illumina/toy_plastisphere/S3_1.fastq.gz
+data/reads/illumina/toy_plastisphere/S3_2.fastq.gz
+data/reads/illumina/toy_plastisphere/S4_1.fastq.gz
+data/reads/illumina/toy_plastisphere/S4_2.fastq.gz
 
 # Temporary files and intermediate data
 tmp/
