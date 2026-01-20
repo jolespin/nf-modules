@@ -1,5 +1,5 @@
-id_sample    fastq_forward    fastq_reverse
-S1  ../../../data/reads/illumina/toy_plastisphere/S1_1.fastq.gz ../../../data/reads/illumina/toy_plastisphere/S1_2.fastq.gz
-S2  ../../../data/reads/illumina/toy_plastisphere/S2_1.fastq.gz ../../../data/reads/illumina/toy_plastisphere/S2_2.fastq.gz
-S3  ../../../data/reads/illumina/toy_plastisphere/S3_1.fastq.gz ../../../data/reads/illumina/toy_plastisphere/S3_2.fastq.gz
-S4  ../../../data/reads/illumina/toy_plastisphere/S4_1.fastq.gz ../../../data/reads/illumina/toy_plastisphere/S4_2.fastq.gz
+id_sample	fastq_forward	fastq_reverse
+S1	../../../data/reads/illumina/toy_plastisphere/S1_1.fastq.gz	../../../data/reads/illumina/toy_plastisphere/S1_2.fastq.gz
+S2	../../../data/reads/illumina/toy_plastisphere/S2_1.fastq.gz	../../../data/reads/illumina/toy_plastisphere/S2_2.fastq.gz
+S3	../../../data/reads/illumina/toy_plastisphere/S3_1.fastq.gz	../../../data/reads/illumina/toy_plastisphere/S3_2.fastq.gz
+S4	../../../data/reads/illumina/toy_plastisphere/S4_1.fastq.gz	../../../data/reads/illumina/toy_plastisphere/S4_2.fastq.gz

@@ -9,11 +9,11 @@ process SYLPH_PROFILE {
 
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
         ? 'https://depot.galaxyproject.org/singularity/sylph:0.9.0--ha6fb395_0'
-        : 'biocontainers/sylph:0.9.0--ha6fb395_0'}"
+        : 'quay.io/biocontainers/sylph:0.9.0--ha6fb395_0'}"
 
     input:
     tuple val(meta), path(reads)
-    tuple val(db_name), path(db, stageAs: "db/*"), path(taxonomy, stageAs: "tax/*")
+    tuple val(db_name), path(db), path(taxonomy)
 
     output:
     tuple val(meta), path('*.tsv.gz'), emit: results
@@ -28,21 +28,21 @@ process SYLPH_PROFILE {
     def input = meta.single_end ? "${reads}" : "-1 ${reads[0]} -2 ${reads[1]}"
 
     // Get databases
-    def db_names = db_name
-    def db_list = db.collect{ it -> "db/${it.name}"}.join(" ")
-    def tax_list = taxonomy.collect{ it -> "tax/${it.name}"}.join(" ")
+    def db_names_str = db_name.join(',')  // Convert list to comma-separated string
+    def db_list = db.collect{ file -> file.name }.join(" ")
+    def tax_list = taxonomy.collect{ file -> file.name }.join(" ")
 
     """
-    echo $db_names
-    echo $db_list
-    echo $tax_list
+    # echo "Database names: ${db_names_str}"
+    # echo "Database files: ${db_list}"
+    # echo "Taxonomy files: ${tax_list}"
 
     # Run Sylph profiling
     # -------------------
     sylph profile \\
         -t ${task.cpus} \\
         ${args} \\
-        ${db_list}\\
+        ${db_list} \\
         ${input} \\
         -o ${prefix}.tsv
 
@@ -55,7 +55,6 @@ process SYLPH_PROFILE {
         sylph: \$(sylph -V | awk '{print \$2}')
     END_VERSIONS
     """
-
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
