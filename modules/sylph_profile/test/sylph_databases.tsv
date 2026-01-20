@@ -1,0 +1,4 @@
+name    database    taxonomy
+plastisphere_prokaryotic    plastisphere_prokaryotic-c200.syldb plastisphere_prokaryotic-c200.syldb.taxonomy.tsv.gz
+plastisphere_eukaryotic    plastisphere_eukaryotic-c200.syldb   plastisphere_eukaryotic-c200.syldb.taxonomy.tsv.gz
+plastisphere_viral    plastisphere_viral-c200.syldb plastisphere_viral-c200.syldb.taxonomy.tsv.gz
