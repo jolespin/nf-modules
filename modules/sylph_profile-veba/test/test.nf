@@ -67,8 +67,11 @@ workflow {
         .map { all_samples ->
             // Extract components
             def sample_metas = all_samples.collect { it[0] }
-            def r1s = all_samples.collect { it[1][0] }
-            def r2s = all_samples.collect { it[1][1] }
+            
+            // Interleave R1 and R2 files: [S1_R1, S1_R2, S2_R1, S2_R2, ...]
+            def all_reads = all_samples.collectMany { sample ->
+                [sample[1][0], sample[1][1]]  // [R1, R2] for each sample
+            }
             
             // Create batch metadata
             def batch_meta = [
@@ -76,7 +79,7 @@ workflow {
                 n_samples: sample_metas.size()
             ]
             
-            tuple(batch_meta, sample_metas, r1s, r2s)
+            tuple(batch_meta, sample_metas, all_reads)
         }
     
     // Database channel (same as before)
@@ -181,23 +184,23 @@ workflow {
                 ]
             ]
         }
-    
-    // Batch all samples together
+
     reads_ch_batched = reads_ch
         .toList()
         .map { all_samples ->
-            // Extract components
             def sample_metas = all_samples.collect { it[0] }
-            def r1s = all_samples.collect { it[1][0] }
-            def r2s = all_samples.collect { it[1][1] }
             
-            // Create batch metadata
+            // Interleave R1 and R2 files
+            def all_reads = all_samples.collectMany { sample ->
+                [sample[1][0], sample[1][1]]
+            }
+            
             def batch_meta = [
                 id: 'all_samples',
                 n_samples: sample_metas.size()
             ]
             
-            tuple(batch_meta, sample_metas, r1s, r2s)
+            tuple(batch_meta, sample_metas, all_reads)
         }
     
     // Database channel (same as before)
