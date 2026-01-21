@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "v2025.1.19"
+def module_version = "v2025.1.21"
 
 process SYLPH_PROFILE {
     tag "${meta.id}"
@@ -81,13 +81,9 @@ process SYLPH_PROFILE_MANY {
     label 'process_high'
 
     container "docker.io/jolespin/sylph-veba:0.9.0"
-    // container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-    //     ? 'https://depot.galaxyproject.org/singularity/sylph:0.9.0--ha6fb395_0'
-    //     : 'quay.io/biocontainers/sylph:0.9.0--ha6fb395_0'}"
-    
 
     input:
-    tuple val(batch_meta), val(sample_metas), path(reads_r1), path(reads_r2)
+    tuple val(batch_meta), val(sample_metas), path(reads)
     path(db)
 
     output:
@@ -101,15 +97,21 @@ process SYLPH_PROFILE_MANY {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${batch_meta.id}"
 
-    // Build file lists
-    def r1_list = reads_r1.collect{ file -> file.name }.join(' ')
-    def r2_list = reads_r2.collect{ file -> file.name }.join(' ')
+    // Split reads into R1 and R2 lists (assumes paired-end with reads as [R1, R2, R1, R2, ...])
+    def reads_list = reads instanceof List ? reads : [reads]
+    def r1_files = []
+    def r2_files = []
+    for (int i = 0; i < reads_list.size(); i += 2) {
+        r1_files.add(reads_list[i].name)
+        r2_files.add(reads_list[i+1].name)
+    }
+    def r1_list = r1_files.join(' ')
+    def r2_list = r2_files.join(' ')
     def db_list = db.collect{ file -> file.name }.join(' ')
 
     // Create mapping entries for bash printf
     def sample_ids = sample_metas.collect { it.id }
-    def r1_names = reads_r1.collect { it.name }
-    def mapping_lines = [r1_names, sample_ids].transpose().collect { r1, id -> "printf '${r1}\\t${id}\\n' >> sample_mapping.tsv" }.join('\n')
+    def mapping_lines = [r1_files, sample_ids].transpose().collect { r1, id -> "printf '${r1}\\t${id}\\n' >> sample_mapping.tsv" }.join('\n')
 
     """
     # Create R1 filename -> Sample ID mapping file
@@ -244,7 +246,7 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
     container "docker.io/jolespin/sylph-veba:0.9.0"
 
     input:
-    tuple val(batch_meta), val(sample_metas), path(reads_r1), path(reads_r2)
+    tuple val(batch_meta), val(sample_metas), path(reads)
     tuple val(db_name), path(db), path(taxonomy)
 
     output:
@@ -258,17 +260,23 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${batch_meta.id}"
 
-    // Build file lists
-    def r1_list = reads_r1.collect{ file -> file.name }.join(' ')
-    def r2_list = reads_r2.collect{ file -> file.name }.join(' ')
+    // Split reads into R1 and R2 lists
+    def reads_list = reads instanceof List ? reads : [reads]
+    def r1_files = []
+    def r2_files = []
+    for (int i = 0; i < reads_list.size(); i += 2) {
+        r1_files.add(reads_list[i].name)
+        r2_files.add(reads_list[i+1].name)
+    }
+    def r1_list = r1_files.join(' ')
+    def r2_list = r2_files.join(' ')
     def db_name_list = db_name.join(" ")
     def db_list = db.collect{ file -> file.name }.join(' ')
     def taxonomy_list = taxonomy.collect{ file -> file.name }.join(" ")
 
     // Create mapping entries for bash printf
     def sample_ids = sample_metas.collect { it.id }
-    def r1_names = reads_r1.collect { it.name }
-    def mapping_lines = [r1_names, sample_ids].transpose().collect { r1, id -> "printf '${r1}\\t${id}\\n' >> sample_mapping.tsv" }.join('\n')
+    def mapping_lines = [r1_files, sample_ids].transpose().collect { r1, id -> "printf '${r1}\\t${id}\\n' >> sample_mapping.tsv" }.join('\n')
 
     """
     # Create R1 filename -> Sample ID mapping file
@@ -323,4 +331,3 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
     END_VERSIONS
     """
 }
-

@@ -2,8 +2,11 @@
 
 All notable changes to this module will be documented in this file.
 
-## v2026.01.20 - 2026-01-20
+## v2026.01.21 - 2026-01-21
+### Changed
+* Changed `tuple val(batch_meta), val(sample_metas), path(r1_reads), path(r2_reads)` to `tuple val(batch_meta), val(sample_metas), path(reads)` in `SYLPH_PROFILE_MANY` and `SYLPH_PROFILE_MANY_WITH_TAXONOMY`
 
+## v2026.01.20 - 2026-01-20
 ### Added
 * Initial release
 * Adds `Sample` column
