@@ -2,6 +2,10 @@
 
 All notable changes to this module will be documented in this file.
 
+## [2025.1.22] - 2025-01-22
+### Changed
+- Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.scaffolds.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
+
 ## [2025.10.28] - 2025-10-28
 ### Changed
 - Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.assembly.fa.gz` to be consistent with extension used by `FLYE`

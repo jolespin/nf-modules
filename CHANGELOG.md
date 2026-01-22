@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - TBD
+### Changed
+* `spades`
+  * Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.scaffolds.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
+* `medaka`
+  * Changed `${meta.id}.fa.gz` to `${meta.id}.medaka.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
+
 ## [0.2.2] - 2026-01-19
 
 ### Added
@@ -15,16 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * Automated archiving (`.tar.gz`) of `clusterblast/`, `subclusterblast/`, and `knowclusterblast/`.
     * Integration of `reformat_antismash_clusterblast.py` from VEBA.
   * `medaka`
-  
-* Added `step_coverage.tsv.gz` and `step_coverage` emits to `kegg_pathway_profiler`.
+    * Automatic handling of gzipped files
+* `kegg_pathway_profiler`
+  * Added `step_coverage.tsv.gz` and `step_coverage` emits to `kegg_pathway_profiler`.
 
 ### Changed
-
-* Updated `kegg_pathway_profiler` tool version to `v2025.12.18`.
-* Renamed `coverage_report` to `pathway_coverage` in `kegg_pathway_profiler` emits.
+  * `kegg_pathway_profiler`
+    * Updated tool version to `v2025.12.18`.
+    * Renamed `coverage_report` to `pathway_coverage` in emit.
 
 ### Fixed
-
 * Fixed `pykofamsearch` output to only emit `*.output.tsv.gz`, matching `pyhmmsearch` behavior.
 * Fixed missing period in `identifier_mapping.proteins.tsv.gz` `pyrodigal` emit.
 

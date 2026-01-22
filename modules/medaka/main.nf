@@ -1,3 +1,7 @@
+nextflow.enable.dsl = 2
+
+def module_version = "2026.1.22"
+
 process MEDAKA {
     tag "$meta.id"
     label 'process_high'
@@ -11,7 +15,7 @@ process MEDAKA {
     tuple val(meta), path(reads), path(assembly)
 
     output:
-    tuple val(meta), path("*.fa.gz"), emit: assembly
+    tuple val(meta), path("*.medaka.fa.gz"), emit: assembly
     path "versions.yml"             , emit: versions
 
     when:
@@ -43,8 +47,8 @@ process MEDAKA {
         -d $input_file \\
         -o ./
 
-    mv consensus.fasta ${prefix}.fa
-    gzip -n -f ${prefix}.fa
+    mv consensus.fasta ${prefix}.medaka.fa
+    gzip -n -f ${prefix}.medaka.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
