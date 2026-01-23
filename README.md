@@ -14,16 +14,16 @@ pip install nf-modules
 ```
 
 ## Usage
-Recommended minimal `NextFlow` project directory structure: 
+Recommended minimal `NextFlow` project directory structure:  
 ```
-├── nextflow.config
-├── main.nf
-├── modules/
-│   ├── local/nf-modules/ # Your custom modules (e.g., assembly.nf) and nf-modules (e.g., pyhmmsearch)
-│   └── nf-core/ # Official nf-core modules
-├── bin/
-├── .gitignore
-└── README.md
+????????? nextflow.config
+????????? main.nf
+????????? modules/
+???   ????????? local/nf-modules/ # Your custom modules (e.g., assembly.nf) and nf-modules (e.g., pyhmmsearch)
+???   ????????? nf-core/ # Official nf-core modules
+????????? bin/
+????????? .gitignore
+????????? README.md
 ```
 
 ### List available modules
@@ -117,7 +117,7 @@ compile-reads-table -f Fastq/ -n "[ID].merged.fastq" -x fastq -L
 
 - Python 3.6+
 - PyYAML
-- Pandas ≥ 2.1.0
+- Pandas ??? 2.1.0
 
 ## Repository
 
