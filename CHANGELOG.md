@@ -87,3 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Command-line interface with argparse
 * pip installable package with entry points
 
+### Pending
+
+* `AutoCycler` https://academic.oup.com/bioinformatics/article/41/9/btaf474/8242761
+
