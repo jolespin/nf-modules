@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.12.5"
+def module_version = "2026.2.26"
 
 process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     tag "$meta.id"
@@ -29,7 +29,7 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}--KEGG"
+    def prefix = task.ext.prefix ?: "${meta.id}---KEGG"
     
     """
     # Build KO table
