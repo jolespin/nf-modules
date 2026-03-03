@@ -1,16 +1,13 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "v2025.1.21"
+def module_version = "v2026.3.2"
 
 process SYLPH_PROFILE {
     tag "${meta.id}"
     label 'process_high'
 
     container "docker.io/jolespin/sylph-veba:0.9.0"
-    // container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-    //     ? 'https://depot.galaxyproject.org/singularity/sylph:0.9.0--ha6fb395_0'
-    //     : 'quay.io/biocontainers/sylph:0.9.0--ha6fb395_0'}"
 
     input:
     tuple val(meta), path(reads)
@@ -26,18 +23,31 @@ process SYLPH_PROFILE {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = meta.single_end ? "${reads}" : "-1 ${reads[0]} -2 ${reads[1]}"
+    def is_single = meta.single_end
+    
+    // Safely create symlinks (checks to prevent linking a file to itself if names randomly match)
+    def rename_bash = is_single 
+        ? "[ \"${reads}\" != \"${prefix}.fastq.gz\" ] && ln -sf ${reads} ${prefix}.fastq.gz || true"
+        : "[ \"${reads[0]}\" != \"${prefix}_1.fastq.gz\" ] && ln -sf ${reads[0]} ${prefix}_1.fastq.gz || true\n    [ \"${reads[1]}\" != \"${prefix}_2.fastq.gz\" ] && ln -sf ${reads[1]} ${prefix}_2.fastq.gz || true"
+    
+    // Construct tool arguments based on library type
+    def input_args = is_single 
+        ? "${prefix}.fastq.gz" 
+        : "-1 ${prefix}_1.fastq.gz -2 ${prefix}_2.fastq.gz"
 
     // Get databases
     def db_list = db.collect{ file -> file.name }.join(" ")
 
     """
+    # Stage files with sample prefix names
+    ${rename_bash}
+
     # Run Sylph profiling
     sylph profile \\
         -t ${task.cpus} \\
         ${args} \\
         ${db_list} \\
-        ${input} \\
+        ${input_args} \\
         -o ${prefix}_raw.tsv
 
     # Add Sample column with meta.id
@@ -63,9 +73,7 @@ process SYLPH_PROFILE {
     """
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = meta.single_end ? "${reads}" : "-1 ${reads[0]} -2 ${reads[1]}"
 
     """
     touch ${prefix}.tsv.gz
@@ -97,23 +105,48 @@ process SYLPH_PROFILE_MANY {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${batch_meta.id}"
 
-    // Split reads into R1 and R2 lists (assumes paired-end with reads as [R1, R2, R1, R2, ...])
+    // Process reads to generate renaming commands and arguments mapping
     def reads_list = reads instanceof List ? reads : [reads]
     def r1_files = []
     def r2_files = []
-    for (int i = 0; i < reads_list.size(); i += 2) {
-        r1_files.add(reads_list[i].name)
-        r2_files.add(reads_list[i+1].name)
+    def rename_cmds = []
+
+    int read_idx = 0
+    for (int i = 0; i < sample_metas.size(); i++) {
+        def sample_id = sample_metas[i].id
+        if (sample_metas[i].single_end) {
+            def r1 = reads_list[read_idx]
+            def new_name = "${sample_id}.fastq.gz"
+            rename_cmds << "[ \"${r1}\" != \"${new_name}\" ] && ln -sf ${r1} ${new_name} || true"
+            r1_files.add(new_name)
+            read_idx += 1
+        } else {
+            def r1 = reads_list[read_idx]
+            def r2 = reads_list[read_idx + 1]
+            def new_r1 = "${sample_id}_1.fastq.gz"
+            def new_r2 = "${sample_id}_2.fastq.gz"
+            rename_cmds << "[ \"${r1}\" != \"${new_r1}\" ] && ln -sf ${r1} ${new_r1} || true"
+            rename_cmds << "[ \"${r2}\" != \"${new_r2}\" ] && ln -sf ${r2} ${new_r2} || true"
+            r1_files.add(new_r1)
+            r2_files.add(new_r2)
+            read_idx += 2
+        }
     }
-    def r1_list = r1_files.join(' ')
-    def r2_list = r2_files.join(' ')
+    
+    def rename_bash = rename_cmds.join('\n    ')
     def db_list = db.collect{ file -> file.name }.join(' ')
 
-    // Create mapping entries for bash printf
+    // Build input arguments safely supporting a fully single-end vs paired-end batch
+    def input_args = r2_files.isEmpty() ? "${r1_files.join(' ')}" : "-1 ${r1_files.join(' ')} -2 ${r2_files.join(' ')}"
+
+    // Create mapping entries for bash printf. r1_files now correctly holds the new prefixed names.
     def sample_ids = sample_metas.collect { it.id }
     def mapping_lines = [r1_files, sample_ids].transpose().collect { r1, id -> "printf '${r1}\\t${id}\\n' >> sample_mapping.tsv" }.join('\n')
 
     """
+    # Stage files with sample prefix names
+    ${rename_bash}
+
     # Create R1 filename -> Sample ID mapping file
     ${mapping_lines}
 
@@ -122,8 +155,7 @@ process SYLPH_PROFILE_MANY {
         -t ${task.cpus} \\
         ${args} \\
         ${db_list} \\
-        -1 ${r1_list} \\
-        -2 ${r2_list} \\
+        ${input_args} \\
         -o ${prefix}_raw.tsv
 
     # Add Sample column using awk
@@ -184,7 +216,16 @@ process SYLPH_PROFILE_WITH_TAXONOMY {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = meta.single_end ? "${reads}" : "-1 ${reads[0]} -2 ${reads[1]}"
+    def is_single = meta.single_end
+    
+    // Safely create symlinks
+    def rename_bash = is_single 
+        ? "[ \"${reads}\" != \"${prefix}.fastq.gz\" ] && ln -sf ${reads} ${prefix}.fastq.gz || true"
+        : "[ \"${reads[0]}\" != \"${prefix}_1.fastq.gz\" ] && ln -sf ${reads[0]} ${prefix}_1.fastq.gz || true\n    [ \"${reads[1]}\" != \"${prefix}_2.fastq.gz\" ] && ln -sf ${reads[1]} ${prefix}_2.fastq.gz || true"
+    
+    def input_args = is_single 
+        ? "${prefix}.fastq.gz" 
+        : "-1 ${prefix}_1.fastq.gz -2 ${prefix}_2.fastq.gz"
 
     // Get databases
     def db_name_list = db_name.join(" ")
@@ -192,12 +233,15 @@ process SYLPH_PROFILE_WITH_TAXONOMY {
     def taxonomy_list = taxonomy.collect{ file -> file.name }.join(" ")
 
     """
+    # Stage files with sample prefix names
+    ${rename_bash}
+
     # Run Sylph profiling
     sylph profile \\
         -t ${task.cpus} \\
         ${args} \\
         ${db_list} \\
-        ${input} \\
+        ${input_args} \\
         -o ${prefix}_raw.tsv
 
     # Add Sample column with meta.id
@@ -226,9 +270,7 @@ process SYLPH_PROFILE_WITH_TAXONOMY {
     """
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = meta.single_end ? "${reads}" : "-1 ${reads[0]} -2 ${reads[1]}"
 
     """
     touch ${prefix}.tsv.gz
@@ -260,25 +302,50 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${batch_meta.id}"
 
-    // Split reads into R1 and R2 lists
+    // Process reads to generate renaming commands
     def reads_list = reads instanceof List ? reads : [reads]
     def r1_files = []
     def r2_files = []
-    for (int i = 0; i < reads_list.size(); i += 2) {
-        r1_files.add(reads_list[i].name)
-        r2_files.add(reads_list[i+1].name)
+    def rename_cmds = []
+
+    int read_idx = 0
+    for (int i = 0; i < sample_metas.size(); i++) {
+        def sample_id = sample_metas[i].id
+        if (sample_metas[i].single_end) {
+            def r1 = reads_list[read_idx]
+            def new_name = "${sample_id}.fastq.gz"
+            rename_cmds << "[ \"${r1}\" != \"${new_name}\" ] && ln -sf ${r1} ${new_name} || true"
+            r1_files.add(new_name)
+            read_idx += 1
+        } else {
+            def r1 = reads_list[read_idx]
+            def r2 = reads_list[read_idx + 1]
+            def new_r1 = "${sample_id}_1.fastq.gz"
+            def new_r2 = "${sample_id}_2.fastq.gz"
+            rename_cmds << "[ \"${r1}\" != \"${new_r1}\" ] && ln -sf ${r1} ${new_r1} || true"
+            rename_cmds << "[ \"${r2}\" != \"${new_r2}\" ] && ln -sf ${r2} ${new_r2} || true"
+            r1_files.add(new_r1)
+            r2_files.add(new_r2)
+            read_idx += 2
+        }
     }
-    def r1_list = r1_files.join(' ')
-    def r2_list = r2_files.join(' ')
+    
+    def rename_bash = rename_cmds.join('\n    ')
     def db_name_list = db_name.join(" ")
     def db_list = db.collect{ file -> file.name }.join(' ')
     def taxonomy_list = taxonomy.collect{ file -> file.name }.join(" ")
+
+    // Build input arguments
+    def input_args = r2_files.isEmpty() ? "${r1_files.join(' ')}" : "-1 ${r1_files.join(' ')} -2 ${r2_files.join(' ')}"
 
     // Create mapping entries for bash printf
     def sample_ids = sample_metas.collect { it.id }
     def mapping_lines = [r1_files, sample_ids].transpose().collect { r1, id -> "printf '${r1}\\t${id}\\n' >> sample_mapping.tsv" }.join('\n')
 
     """
+    # Stage files with sample prefix names
+    ${rename_bash}
+
     # Create R1 filename -> Sample ID mapping file
     ${mapping_lines}
 
@@ -287,8 +354,7 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
         -t ${task.cpus} \\
         ${args} \\
         ${db_list} \\
-        -1 ${r1_list} \\
-        -2 ${r2_list} \\
+        ${input_args} \\
         -o ${prefix}_raw.tsv
 
     # Add Sample column using awk
