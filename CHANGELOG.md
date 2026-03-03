@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.scaffolds.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
 * `medaka`
   * Changed `${meta.id}.fa.gz` to `${meta.id}.medaka.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
-
+* `sylph_profile-veba`
+  * Added `${prefix}` to fastq files during staging instead of using original filenames (e.g., `S1_1.fastq.gz` and `S1_2.fastq.gz` instead of `reads_1.fastq.gz` and `reads_2.fastq.gz`)
+  
 ## [0.2.2] - 2026-01-19
 
 ### Added
