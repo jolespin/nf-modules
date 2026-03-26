@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "v2026.3.2"
+def module_version = "v2026.3.26"
 
 process SYLPH_PROFILE {
     tag "${meta.id}"
@@ -45,6 +45,7 @@ process SYLPH_PROFILE {
     # Run Sylph profiling
     sylph profile \\
         -t ${task.cpus} \\
+        --estimate-unknown \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
@@ -153,6 +154,7 @@ process SYLPH_PROFILE_MANY {
     # Run Sylph profiling
     sylph profile \\
         -t ${task.cpus} \\
+        --estimate-unknown \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
@@ -239,6 +241,7 @@ process SYLPH_PROFILE_WITH_TAXONOMY {
     # Run Sylph profiling
     sylph profile \\
         -t ${task.cpus} \\
+        --estimate-unknown \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
@@ -352,6 +355,7 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
     # Run Sylph profiling
     sylph profile \\
         -t ${task.cpus} \\
+        --estimate-unknown \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
