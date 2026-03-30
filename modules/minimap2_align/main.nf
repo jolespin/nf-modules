@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.5"
+def module_version = "2026.3.30"
 
 process MINIMAP2_ALIGN {
     tag "$meta.id"
@@ -56,6 +56,7 @@ process MINIMAP2_ALIGN {
             ${args} \\
             ${reference_file} \\
             ${reads_input} \\
+            | samtools view -bS -@ ${task.cpus} - \\
             | samtools sort -@ ${task.cpus} -o ${prefix}.sorted.bam -
 
         samtools index -@ ${task.cpus} ${prefix}.sorted.bam
