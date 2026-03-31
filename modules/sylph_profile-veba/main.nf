@@ -46,6 +46,7 @@ process SYLPH_PROFILE {
     sylph profile \\
         -t ${task.cpus} \\
         --estimate-unknown \\
+        --debug \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
@@ -155,6 +156,7 @@ process SYLPH_PROFILE_MANY {
     sylph profile \\
         -t ${task.cpus} \\
         --estimate-unknown \\
+        --debug \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
@@ -242,6 +244,7 @@ process SYLPH_PROFILE_WITH_TAXONOMY {
     sylph profile \\
         -t ${task.cpus} \\
         --estimate-unknown \\
+        --debug \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\
@@ -356,6 +359,7 @@ process SYLPH_PROFILE_MANY_WITH_TAXONOMY {
     sylph profile \\
         -t ${task.cpus} \\
         --estimate-unknown \\
+        --debug \\
         ${args} \\
         ${db_list} \\
         ${input_args} \\

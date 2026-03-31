@@ -4,7 +4,7 @@ All notable changes to this module will be documented in this file.
 
 ## v2026.03.26 - 2026-03-26
 * Added `--estimate-unknown`
-
+* Added `--debug` to track progress more easily
 
 ## v2026.03.02 - 2026-03-02
 * Added `${prefix}` to fastq files during staging instead of using original filenames (e.g., `S1_1.fastq.gz` and `S1_2.fastq.gz` instead of `reads_1.fastq.gz` and `reads_2.fastq.gz`)
