@@ -15,10 +15,9 @@ workflow {
         ],
     ])
 
-    reference_ch = Channel.of([
-        [id:"S1__genomes"],
+    reference_ch = Channel.of(
         file(params.reference, checkIfExists:true),
-    ])
+    )
 
     // Run batched profiling
     FASTQ_PREPROCESSOR_SHORT(

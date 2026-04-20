@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.4.20"
+def module_version = "2026.4.17"
 
 process FASTQ_PREPROCESSOR_SHORT {
     tag "$meta.id"
@@ -12,7 +12,7 @@ process FASTQ_PREPROCESSOR_SHORT {
 
     input:
     tuple val(meta), path(reads)
-    tuple val(meta2), path(reference)   // optional: set to [] to skip decontamination
+    path  contamination_reference       // optional: set to [] to skip decontamination
     path  kmer_database                 // optional: set to [] to skip BBDuk
     path  adapters                      // optional: set to [] for auto-detect
 
