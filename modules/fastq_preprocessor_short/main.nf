@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.4.17"
+def module_version = "2026.4.21"
 
 process FASTQ_PREPROCESSOR_SHORT {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "jolespin::fastq_preprocessor=2026.4.17"
-    container "docker.io/jolespin/fastq_preprocessor:2026.4.17"
+    conda "jolespin::fastq_preprocessor=2026.4.21"
+    container "docker.io/jolespin/fastq_preprocessor:2026.4.21"
 
     input:
     tuple val(meta), path(reads)

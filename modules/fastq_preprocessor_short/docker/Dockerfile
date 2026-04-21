@@ -20,7 +20,7 @@ RUN mkdir -p /volumes/working
 USER $MAMBA_USER
 
 # Install dependencies
-RUN micromamba install -y -n base -c bioconda -c conda-forge -c jolespin strobealign==0.17.0 fastq_preprocessor==2026.4.17 procps-ng==4.0.4 && \ 
+RUN micromamba install -y -n base -c bioconda -c conda-forge -c jolespin strobealign==0.17.0 fastq_preprocessor==2026.4.21 procps-ng==4.0.4 && \ 
     micromamba clean -a -y -f
 
 
