@@ -9,4 +9,4 @@ All notable changes to this module will be documented in this file.
 * Runs samtools sorted bam, index, depth, and coverage
 * Return mapped and mapped fastq
 * Returns breadth of coverage
-
+* Adds `--contigs_to_genomes` argument

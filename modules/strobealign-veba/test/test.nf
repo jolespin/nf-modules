@@ -20,6 +20,10 @@ workflow {
         file(params.reference, checkIfExists:true),
     ])
 
+    contigs_to_genomes_ch = Channel.of(
+        file(params.contigs_to_genomes, checkIfExists:true),
+    )
+
     // Run batched profiling
     STROBEALIGN_WRAPPER(
         reads_ch, 
@@ -27,6 +31,7 @@ workflow {
         true,
         true,
         true,
+        contigs_to_genomes_ch,
         )
     
     STROBEALIGN_WRAPPER.out.bam.view()

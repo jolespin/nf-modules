@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.4.17"
+def module_version = "2026.4.20"
 
 process STROBEALIGN_WRAPPER {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "bioconda::strobealign=0.17.0 jolespin::fastq_preprocess=2026.4.17"
-    container "docker.io/jolespin/fastq_preprocessor:2026.4.17"
+    conda "bioconda::strobealign=0.17.0 jolespin::fastq_preprocess=2026.4.20"
+    container "docker.io/jolespin/fastq_preprocessor:2026.4.20"
 
     input:
     tuple val(meta), path(reads)
@@ -16,6 +16,7 @@ process STROBEALIGN_WRAPPER {
     val save_mapped_reads
     val save_unmapped_reads
     val save_bam
+    path contigs_to_genomes
 
     output:
     tuple val(meta), path('*.sorted.bam')         , optional: true, emit: bam
@@ -38,8 +39,8 @@ process STROBEALIGN_WRAPPER {
     def mapped_args = save_mapped_reads ? "--mapped_fastq ${prefix}.mapped_%.fastq.gz" : ""
     def unmapped_args = save_unmapped_reads ? "--unmapped_fastq ${prefix}.unmapped_%.fastq.gz" : ""
     def reads_input = [reads].flatten().join(' ')
-    def breadth_command = save_bam ? "coverage_breadth --depth ${prefix}.mapped.sorted.bam.depth.tsv -o ${prefix}.mapped.sorted.bam.breadth.tsv" : ""
-
+    def contigs_arg = contigs_to_genomes ? "--contigs_to_genomes ${contigs_to_genomes}" : ""
+    def breadth_command = save_bam ? "coverage_breadth --depth ${prefix}.mapped.sorted.bam.depth.tsv -o ${prefix}.mapped.sorted.bam.breadth.tsv ${contigs_arg}" : ""
     """
     # strobealign
     strobealign_wrapper \\
