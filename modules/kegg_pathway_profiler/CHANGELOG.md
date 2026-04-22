@@ -1,14 +1,23 @@
 # Changelog
 
 All notable changes to this module will be documented in this file.
-## [2026.2.26] - 2026-02-26
+
+## v2026.02.26
+
+### Changed
 - Changed `"${meta.id}--KEGG"` to `"${meta.id}---KEGG"` for consistency with other modules
 
-## [2026.1.13] - 2026-01-13
+## v2026.01.13
+
+### Added
 - Added `step_coverage.tsv.gz` to outputs
-- Changed `coverage_report` to `pathway_coverage` in `emit`
 - Added `step_coverage` to `emit`
+
+### Changed
+- Changed `coverage_report` to `pathway_coverage` in `emit`
 - Updated `KEGG-Pathway-Profiler` version to `v2025.12.18` which includes `step_coverage` functionality
 
-## [2025.12.5] - 2025-12-05
+## v2025.12.05
+
+### Added
 - Initial release of module
