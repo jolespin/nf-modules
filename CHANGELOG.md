@@ -5,15 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.3] - TBD
+## [0.2.3] - 2026-04-22
+
+### Added
+* New modules:
+  * `sylph_query-veba` — per-sample profiling against sylph sketches with optional taxonomy annotation
+  * `fastq_preprocessor_short` — short-read fastq preprocessing
+* `data/sketches/` with plastisphere prokaryotic, eukaryotic, and viral sylph sketches (moved from `modules/sylph_profile-veba/test/db/`)
+* `data/organisms/metagenome/S1__contigs_to_genomes.tsv` for `strobealign-veba` tests
+* `test/` directories (with `test.nf` and `nextflow.config`) for `barrnap`, `checkm2_predict`, `diamond_blastp`, `minimap2_align`, `pykofamsearch`, `spades`, `strobealign`, and `trnascanse`
+
 ### Changed
+* `strobealign-veba`
+  * Gzips `depth` and `coverage` files
+  * Adds `--contigs_to_genomes` argument
+  * Significantly speeds up runs when fastq files aren't created
+* `fastq_preprocessor_short`
+  * Switched `tuple` to `path` inputs
 * `spades`
   * Changed `${meta.id}.scaffolds.fasta.gz` to `${meta.id}.scaffolds.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
 * `medaka`
   * Changed `${meta.id}.fa.gz` to `${meta.id}.medaka.fa.gz` now that `gtdbtk_classifywf` has an `extension` input
 * `sylph_profile-veba`
   * Added `${prefix}` to fastq files during staging instead of using original filenames (e.g., `S1_1.fastq.gz` and `S1_2.fastq.gz` instead of `reads_1.fastq.gz` and `reads_2.fastq.gz`)
-  
+* Standardized every module `CHANGELOG.md` on `## vYYYY.MM.DD` headers with `-` bullets (zero-padded months/days, no trailing ISO date)
+
+### Fixed
+* Corrected year typos in `medaka` and `spades` top CHANGELOG entries (were `[2025.1.22]`, should have been `v2026.01.22`)
+* Fixed mojibake in root `README.md` (directory-tree glyphs and Pandas version comparator)
+* Renamed `modules/barrnap/REAMDE.md` → `modules/barrnap/README.md`
+
+
 ## [0.2.2] - 2026-01-19
 
 ### Added

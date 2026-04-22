@@ -2,15 +2,20 @@
 
 All notable changes to this module will be documented in this file.
 
-## [2025.12.5] - 2025-12-05
-* Fixed missing period in `identifier_mapping.proteins.tsv.gz` emit
+## v2025.12.05
 
-## [2025.12.4] - 2025-12-04
-* Fixed bug where `gene_id`, `contig_id`, and `gene_biotype` were not included in attributes
-* Added `identifier_mapping.proteins.tsv.gz`
+### Fixed
+- Fixed missing period in `identifier_mapping.proteins.tsv.gz` emit
 
+## v2025.12.04
 
-## [2025.9.1] - 2025-09-01
+### Added
+- Added `identifier_mapping.proteins.tsv.gz`
+
+### Fixed
+- Fixed bug where `gene_id`, `contig_id`, and `gene_biotype` were not included in attributes
+
+## v2025.09.01
 
 ### Added
 - Initial release of module

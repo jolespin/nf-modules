@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(**/*.fasta)",
+      "Read(**/*.fasta.gz)",
+      "Read(**/*.fa)",
+      "Read(**/*.fa.gz)",
+      "Read(**/*.faa)",
+      "Read(**/*.faa.gz)",
+      "Read(**/*.ffn)",
+      "Read(**/*.ffn.gz)",
+      "Read(**/*.fna)",
+      "Read(**/*.fna.gz)",
+      "Read(**/*.fq)",
+      "Read(**/*.fq.gz)",
+      "Read(**/*.fastq)",
+      "Read(**/*.fastq.gz)",
+      "Read(**/*.gff)",
+      "Read(**/*.gff.gz)",
+      "Read(**/*.gtf)",
+      "Read(**/*.gtf.gz)",
+      "Read(**/*.vcf)",
+      "Read(**/*.vcf.gz)",
+      "Read(**/*.bam)",
+      "Read(**/*.sam)",
+      "Read(**/*.cram)",
+      "Read(**/*.bed)",
+      "Read(**/*.bai)"
+    ]
+  }
+}
