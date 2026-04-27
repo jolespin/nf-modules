@@ -1,3 +1,8 @@
+#!/usr/bin/env nextflow
+nextflow.enable.dsl = 2
+
+def module_version = "2026.4.27"
+
 process ANTISMASH {
     tag "${meta.id}"
     label 'process_medium'
@@ -80,28 +85,27 @@ process ANTISMASH {
         assembly_fasta_file = "${assembly_fasta}"
     }
 
-    // Handle GFF decompression
-    def gff_input = ""
-    def gff_cleanup = ""
-    def gff_decompress_cmd = ""
+    // Stage GFF: decompress (if gzipped) and keep only feature types antiSMASH consumes.
+    // Drops pseudogenic_tRNA / pseudogenic_rRNA / pseudogenic_exon and any other types
+    // whose names exceed the Biopython/GenBank 15-char feature-key limit. Also strips
+    // any embedded ##FASTA block (e.g. Prokka GFFs; see antismash issue #364).
+    def gff_input     = ""
+    def gff_cleanup   = ""
+    def gff_stage_cmd = ""
 
     if (gff) {
-        if (gff.toString().endsWith('.gz')) {
-            gff_input = "${prefix}.gff"
-            gff_decompress_cmd = "gunzip -c ${gff} > ${gff_input}"
-            gff_cleanup = "rm -fv ${gff_input}"
-        }
-        else {
-            gff_input = "${gff}"
-        }
+        gff_input = "${prefix}.gff"
+        def reader = gff.toString().endsWith('.gz') ? "gunzip -c ${gff}" : "cat ${gff}"
+        gff_stage_cmd = """${reader} | awk 'BEGIN{FS=OFS="\\t"} /^##FASTA/{exit} /^#/{print;next} NF<9{next} \$3=="CDS"||\$3=="gene"||\$3=="mRNA"||\$3=="exon"||\$3=="region"{print}' > ${gff_input}"""
+        gff_cleanup = "rm -fv ${gff_input}"
     }
 
     def gff_flag = gff ? "--genefinding-gff3 ${gff_input}" : ""
 
     """
-    # Decompress inputs
+    # Decompress assembly + stage/filter GFF
     ${sequence_decompress_cmd}
-    ${gff_decompress_cmd}
+    ${gff_stage_cmd}
 
     # antiSMASH
     antismash \\
