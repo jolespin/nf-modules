@@ -2,6 +2,11 @@
 
 All notable changes to this module will be documented in this file.
 
+## v2026.5.6
+
+### Added
+- `GTDBTK_CLASSIFYWF_WITH_STAGING` process: stages genomes as `${genome_id}__GTDB-Tk_staging.${extension}` before classification, then removes the staging suffix from output file contents (taxonomy, tree, markers, MSA, filtered, and failed genomes)
+
 ## v2025.12.04
 
 ### Changed
