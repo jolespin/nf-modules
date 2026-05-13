@@ -1,25 +1,20 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.5.6"
+def module_version = "2026.5.13"
 
 process GTDBTK_CLASSIFYWF {
     tag "${meta.id}"
-    label 'process_high'
-    // conda "bioconda:gtdbtk=2.5.2"
-    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //     'https://depot.galaxyproject.org/singularity/gtdbtk:2.5.2--pyh1f0d9b5_0' :
-    //     'quay.io/biocontainers/gtdbtk:2.5.2--pyh1f0d9b5_0' }"
-    conda "bioconda:gtdbtk=2.4.1"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/gtdbtk:2.4.1--pyhdfd78af_1' :
-        'quay.io/biocontainers/gtdbtk:2.4.1--pyhdfd78af_1' }"
+    label 'process_high_memory'
+    conda "bioconda:gtdbtk=2.7.2"
+    container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/fa/fa734cc7e63b0f7d0c04788ec61de5e6a101a07e966d3dde24384d54a9d75e85/data' :
+        'community.wave.seqera.io/library/gtdbtk:2.7.2--64b0fd171db01270' }"
 
     input:
     tuple val(meta)   , path("bins/*")
     tuple val(db_name), path(db)
     val use_pplacer_scratch_dir
-    path mash_db
     val extension
 
     output:
@@ -42,7 +37,6 @@ process GTDBTK_CLASSIFYWF {
     def args            = task.ext.args ?: ''
     prefix              = task.ext.prefix ?: "${meta.id}"
     def pplacer_scratch = use_pplacer_scratch_dir ? "--scratch_dir pplacer_tmp" : ""
-    def mash_mode       = mash_db ? "--mash_db ${mash_db}" : "--skip_ani_screen"
 
     """
     export GTDBTK_DATA_PATH="\$(find -L ${db} -maxdepth 3 -name 'metadata' -type d -exec dirname {} \\;)"
@@ -58,7 +52,6 @@ process GTDBTK_CLASSIFYWF {
         --out_dir ${prefix} \\
         --cpus ${task.cpus} \\
         --extension ${extension} \\
-        ${mash_mode} \\
         ${pplacer_scratch}
 
     mv ${prefix}/gtdbtk.log "${prefix}/${prefix}.log"
@@ -118,21 +111,16 @@ process GTDBTK_CLASSIFYWF {
 
 process GTDBTK_CLASSIFYWF_WITH_STAGING {
     tag "${meta.id}"
-    label 'process_high'
-    // conda "bioconda:gtdbtk=2.5.2"
-    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //     'https://depot.galaxyproject.org/singularity/gtdbtk:2.5.2--pyh1f0d9b5_0' :
-    //     'quay.io/biocontainers/gtdbtk:2.5.2--pyh1f0d9b5_0' }"
-    conda "bioconda:gtdbtk=2.4.1"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/gtdbtk:2.4.1--pyhdfd78af_1' :
-        'quay.io/biocontainers/gtdbtk:2.4.1--pyhdfd78af_1' }"
+    label 'process_high_memory'
+    conda "bioconda:gtdbtk=2.7.2"
+    container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/fa/fa734cc7e63b0f7d0c04788ec61de5e6a101a07e966d3dde24384d54a9d75e85/data' :
+        'community.wave.seqera.io/library/gtdbtk:2.7.2--64b0fd171db01270' }"
 
     input:
     tuple val(meta)   , path("bins/*")
     tuple val(db_name), path(db)
     val use_pplacer_scratch_dir
-    path mash_db
     val extension
 
     output:
@@ -155,7 +143,6 @@ process GTDBTK_CLASSIFYWF_WITH_STAGING {
     def args            = task.ext.args ?: ''
     prefix              = task.ext.prefix ?: "${meta.id}"
     def pplacer_scratch = use_pplacer_scratch_dir ? "--scratch_dir pplacer_tmp" : ""
-    def mash_mode       = mash_db ? "--mash_db ${mash_db}" : "--skip_ani_screen"
 
     """
     export GTDBTK_DATA_PATH="\$(find -L ${db} -maxdepth 3 -name 'metadata' -type d -exec dirname {} \\;)"
@@ -178,7 +165,6 @@ process GTDBTK_CLASSIFYWF_WITH_STAGING {
         --out_dir ${prefix} \\
         --cpus ${task.cpus} \\
         --extension ${extension} \\
-        ${mash_mode} \\
         ${pplacer_scratch}
 
     mv ${prefix}/gtdbtk.log "${prefix}/${prefix}.log"

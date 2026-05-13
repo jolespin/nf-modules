@@ -19,15 +19,11 @@ workflow {
     db_ch = Channel.fromPath(params.db, type: "dir")
         .map { db_path -> ["gtdb", db_path] }
 
-    // Mash DB - just a path channel, no tuple needed
-    mash_db_ch = Channel.fromPath("${params.db}/mash/gtdb.msh")
-
     // Run the process
     GTDBTK_CLASSIFYWF_WITH_STAGING(
         all_genomes_ch,
         db_ch,
         false,                  // use_pplacer_scratch_dir
-        mash_db_ch,
         "fa.gz"                 // extension
     )
 
