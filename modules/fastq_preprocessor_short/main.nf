@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.4.21"
-
 process FASTQ_PREPROCESSOR_SHORT {
     tag "$meta.id"
     label 'process_medium'
@@ -78,7 +76,6 @@ process FASTQ_PREPROCESSOR_SHORT {
         strobealign: \$(strobealign --version 2>&1 | head -n1 | sed 's/strobealign //')
         bbduk: \$(bbduk.sh --version 2>&1 | head -n2 | tail -n1 | sed 's/BBMap version //')
         seqkit: \$(seqkit version | sed 's/seqkit v//')
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -142,7 +139,6 @@ process FASTQ_PREPROCESSOR_SHORT {
         strobealign: 0.17.0
         bbduk: 39.10
         seqkit: 2.8.0
-        module: ${module_version}
     END_VERSIONS
     """
 }

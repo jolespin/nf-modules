@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.18"
-
 process COMPLEASM_RUN{
     tag "$meta.id"
     label "process_medium"
@@ -49,7 +47,6 @@ process COMPLEASM_RUN{
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         compleasm: \$(compleasm --version | cut -d' ' -f2)
-        module: ${module_version}
     END_VERSIONS
 """
 }

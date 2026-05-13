@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.12.8"
-
 process PYKOFAMSEARCH {
     tag "$meta.id---$dbmeta.id"
     label 'process_medium'
@@ -105,7 +103,6 @@ process PYKOFAMSEARCH {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         pykofamsearch: \$(pykofamsearch --version)
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -118,7 +115,6 @@ process PYKOFAMSEARCH {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         pykofamsearch: \$(pykofamsearch --version)
-        module: ${module_version}
     END_VERSIONS
     """
 }

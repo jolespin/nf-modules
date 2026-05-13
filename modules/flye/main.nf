@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.10.28"
-
 process FLYE {
     tag "$meta.id"
     label 'process_high'
@@ -73,7 +71,6 @@ process FLYE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         flye: \$( flye --version )
-        module: ${module_version}
     END_VERSIONS
     """
 

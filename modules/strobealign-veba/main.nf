@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.4.21"
-
 process STROBEALIGN_WRAPPER {
     tag "$meta.id"
     label 'process_medium'
@@ -60,7 +58,6 @@ process STROBEALIGN_WRAPPER {
     "${task.process}":
         strobealign: \$(strobealign --version 2>&1 | head -n1 | sed 's/strobealign //')
         fastq_preprocessor: \$(fastq_preprocessor --version | head -n1 | sed 's/fastq_preprocessor //')
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -78,7 +75,6 @@ process STROBEALIGN_WRAPPER {
     "${task.process}":
         strobealign: 0.17.0
         fastq_preprocessor: 2026.4.21
-        module: ${module_version}
     END_VERSIONS
     """
 }

@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.5"
-
 process STROBEALIGN {
     tag "$meta.id"
     label 'process_medium'
@@ -63,7 +61,6 @@ process STROBEALIGN {
         "${task.process}":
             strobealign: \$(strobealign --version 2>&1 | head -n1 | sed 's/strobealign //')
             samtools: \$(samtools --version | head -n1 | sed 's/samtools //')
-            module: ${module_version}
         END_VERSIONS
         """
     } else if (mode == "paf") {
@@ -83,7 +80,6 @@ process STROBEALIGN {
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             strobealign: \$(strobealign --version 2>&1 | head -n1 | sed 's/strobealign //')
-            module: ${module_version}
         END_VERSIONS
         """
     } else if (mode == "tsv") {
@@ -103,7 +99,6 @@ process STROBEALIGN {
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             strobealign: \$(strobealign --version 2>&1 | head -n1 | sed 's/strobealign //')
-            module: ${module_version}
         END_VERSIONS
         """
     } else {
@@ -127,7 +122,6 @@ process STROBEALIGN {
     "${task.process}":
         strobealign: \$(strobealign --version 2>&1 | head -n1 | sed 's/strobealign //' || echo "0.16.1")
         samtools: \$(samtools --version | head -n1 | sed 's/samtools //' || echo "1.22.1")
-        module: ${module_version}
     END_VERSIONS
     """
 }

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `antismash-veba`
   * GFF staging to handle `pseudogenic_tRNA` and other record types
 
+### Removed
+* Removed `def module_version` declarations and `module:` version entries from all modules for Nextflow 26 compatibility (`Statements cannot be mixed with script declarations`)
+
 ## [0.2.3] - 2026-04-22
 
 ### Added

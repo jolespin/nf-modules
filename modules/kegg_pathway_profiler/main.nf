@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.2.26"
-
 process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     tag "$meta.id"
     label 'process_low'
@@ -54,7 +52,6 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         kegg_pathway_profiler: \$(python -c 'import kegg_pathway_profiler as kpp; print(kpp.__version__)')
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -67,7 +64,6 @@ process PROFILE_PATHWAY_COVERAGE_FROM_PYKOFAMSEARCH {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         kegg_pathway_profiler: \$(python -c 'import kegg_pathway_profiler as kpp; print(kpp.__version__)')
-        module: ${module_version}
     END_VERSIONS
     """
 }

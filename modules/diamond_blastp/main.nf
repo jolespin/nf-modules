@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.4"
-
 process DIAMOND_BLASTP {
     tag "${meta.id}---${dbmeta.id}"
     label 'process_high'
@@ -101,7 +99,6 @@ process DIAMOND_BLASTP {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         diamond: \$(diamond --version 2>&1 | tail -n 1 | sed 's/^diamond version //')
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -115,7 +112,6 @@ process DIAMOND_BLASTP {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         diamond: \$(diamond --version 2>&1 | tail -n 1 | sed 's/^diamond version //')
-        module: ${module_version}
     END_VERSIONS
     """
 }
@@ -179,7 +175,6 @@ process DIAMOND_BLASTP {
 //     cat <<-END_VERSIONS > versions.yml
 //     "${task.process}":
 //         diamond: \$(diamond --version 2>&1 | tail -n 1 | sed 's/^diamond version //')
-//         module: ${module_version}
 //     END_VERSIONS
 //     """
 
@@ -193,7 +188,6 @@ process DIAMOND_BLASTP {
 //     cat <<-END_VERSIONS > versions.yml
 //     "${task.process}":
 //         diamond: \$(diamond --version 2>&1 | tail -n 1 | sed 's/^diamond version //')
-//         module: ${module_version}
 //     END_VERSIONS
 //     """
 // }

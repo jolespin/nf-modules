@@ -1,7 +1,5 @@
 nextflow.enable.dsl = 2
 
-def module_version = "2026.1.22"
-
 process MEDAKA {
     tag "$meta.id"
     label 'process_high'

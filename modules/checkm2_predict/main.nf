@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.1"
-
 process CHECKM2_PREDICT {
     tag "${meta.id}"
     label 'process_medium'
@@ -80,7 +78,6 @@ process CHECKM2_PREDICT {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         checkm2: \$(checkm2 --version)
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -93,7 +90,6 @@ process CHECKM2_PREDICT {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         checkm2: \$(checkm2 --version)
-        module: ${module_version}
     END_VERSIONS
     """
 }

@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "v2026.4.20"
-
 process SYLPH_QUERY {
     tag "${meta.id}"
     label 'process_high'

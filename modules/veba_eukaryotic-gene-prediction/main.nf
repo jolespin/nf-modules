@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.30"
-
 process VEBA_EUKARYOTIC_GENE_PREDICTION {
     tag "$meta.id"
     label 'process_medium'

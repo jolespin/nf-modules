@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.4.27"
-
 process ANTISMASH {
     tag "${meta.id}"
     label 'process_medium'

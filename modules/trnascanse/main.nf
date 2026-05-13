@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2025.9.1"
-
 process TRNASCANSE {
     tag "${meta.id}"
     label "process_medium"
@@ -65,7 +63,6 @@ process TRNASCANSE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         tRNAscan-SE: \$(tRNAscan-SE 2>&1 >/dev/null | awk 'NR==2 {print \$2}')
-        module: ${module_version}
     END_VERSIONS
     """
 
@@ -81,7 +78,6 @@ process TRNASCANSE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         tRNAscan-SE: \$(tRNAscan-SE 2>&1 >/dev/null | awk 'NR==2 {print \$2}')
-        module: ${module_version}
     END_VERSIONS
     """
 }

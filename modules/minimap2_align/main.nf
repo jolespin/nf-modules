@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.3.30"
-
 process MINIMAP2_ALIGN {
     tag "$meta.id"
     label 'process_medium'
@@ -69,7 +67,6 @@ process MINIMAP2_ALIGN {
         "${task.process}":
             minimap2: \$(minimap2 --version 2>&1)
             samtools: \$(samtools --version | head -n1 | sed 's/samtools //')
-            module: ${module_version}
         END_VERSIONS
         """
     } else if (mode == "paf") {
@@ -90,7 +87,6 @@ process MINIMAP2_ALIGN {
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             minimap2: \$(minimap2 --version 2>&1)
-            module: ${module_version}
         END_VERSIONS
         """
     } else {
@@ -112,7 +108,6 @@ process MINIMAP2_ALIGN {
     "${task.process}":
         minimap2: \$(minimap2 --version 2>&1 || echo "2.30")
         samtools: \$(samtools --version | head -n1 | sed 's/samtools //' || echo "1.22.1")
-        module: ${module_version}
     END_VERSIONS
     """
 }
