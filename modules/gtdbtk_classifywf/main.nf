@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.5.13"
-
 process GTDBTK_CLASSIFYWF {
     tag "${meta.id}"
     label 'process_high_memory'
