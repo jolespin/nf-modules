@@ -89,11 +89,11 @@ process PYKOFAMSEARCH {
     # Run PyKOfamSearch
     pykofamsearch \\
         $args \\
+        ${relaxed_heuristic} \\
         --n_jobs $task.cpus \\
         ${database_argument} \\
         -i concatenated_input.fasta \\
-        -o ${prefix}.output.tsv \\
-        ${relaxed_heuristic}
+        -o ${prefix}.output.tsv
 
     # Remove temporary file
     rm -v concatenated_input.fasta
