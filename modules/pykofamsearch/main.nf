@@ -5,8 +5,8 @@ process PYKOFAMSEARCH {
     tag "$meta.id---$dbmeta.id"
     label 'process_medium'
 
-    conda "bioconda::pykofamsearch=2025.9.5"
-    container "docker.io/jolespin/pykofamsearch:2025.9.5"
+    conda "bioconda::pykofamsearch=2026.7.21"
+    container "docker.io/jolespin/pykofamsearch:2026.7.21"
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     //     'https://depot.galaxyproject.org/singularity/pykofamsearch:2024.11.9--pyhdfd78af_0' :
     //     'biocontainers/pykofamsearch:2024.11.9--pyhdfd78af_0' }"
@@ -16,12 +16,13 @@ process PYKOFAMSEARCH {
     tuple(val(dbmeta), path(db))
     val(write_reformatted_output)
     val(is_serialized_database)
+    val(use_relaxed_heuristic)
 
 
     output:
-    tuple val(meta), val(dbmeta), path('*.output.tsv.gz')               , emit: output
+    tuple val(meta), val(dbmeta), path('*.output.tsv.gz')        , emit: output
     tuple val(meta), val(dbmeta), path('*.reformatted.tsv.gz')   , emit: reformatted_output    , optional: true
-    path "versions.yml"                                                  , emit: versions
+    path "versions.yml"                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -78,6 +79,8 @@ process PYKOFAMSEARCH {
 
     def database_argument = is_serialized_database ? "-b ${db}" : "-d ${db}"
     def reformat_command = write_reformatted_output ? "reformat_pykofamsearch -i ${prefix}.output.tsv -o ${prefix}.reformatted.tsv.gz" : ''
+    def relaxed_heuristic = use_relaxed_heuristic ? "--anvio_bitscore_heuristic" : ''
+
 
     """
     # Create temporary file
@@ -89,7 +92,8 @@ process PYKOFAMSEARCH {
         --n_jobs $task.cpus \\
         ${database_argument} \\
         -i concatenated_input.fasta \\
-        -o ${prefix}.output.tsv
+        -o ${prefix}.output.tsv \\
+        ${relaxed_heuristic}
 
     # Remove temporary file
     rm -v concatenated_input.fasta

@@ -19,6 +19,7 @@ workflow {
         db_ch,
         params.write_reformatted_output,
         params.is_serialized_database,
+        params.use_relaxed_heuristic
     )
 
     PYKOFAMSEARCH.out.output.view()
