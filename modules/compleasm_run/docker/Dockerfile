@@ -1,4 +1,4 @@
-# v2025.9.9
+# v2026.7.22
 # =================================
 FROM mambaorg/micromamba:latest
 
@@ -22,7 +22,7 @@ USER $MAMBA_USER
 COPY --chown=$MAMBA_USER:$MAMBA_USER ./bin/ ./bin/
 
 # Install dependencies
-RUN micromamba install -y -n base -c bioconda -c conda-forge compleasm==0.2.7 procps-ng==4.0.4 && \ 
+RUN micromamba install -y -n base -c bioconda -c conda-forge compleasm==0.2.8 procps-ng==4.0.4 && \ 
     micromamba clean -a -y -f
 
 # Add additional scripts to environment bin

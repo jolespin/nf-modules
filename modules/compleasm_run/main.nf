@@ -5,8 +5,8 @@ process COMPLEASM_RUN{
     tag "$meta.id"
     label "process_medium"
 
-    // conda "bioconda::compleasm=0.2.7" // This won't work because it needs the reformatting script
-    container "docker.io/jolespin/compleasm-veba:0.2.7"
+    // conda "bioconda::compleasm=0.2.8" // This won't work because it needs the reformatting script
+    container "docker.io/jolespin/compleasm-veba:0.2.8"
 
     input:
     tuple val(meta), path(fasta)
