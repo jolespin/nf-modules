@@ -30,6 +30,7 @@ workflow {
         true,
         true,
         true,
+	"strict",
 	)
 
     // View the output to confirm the pipeline ran successfully.

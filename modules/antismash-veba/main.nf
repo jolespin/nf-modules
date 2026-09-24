@@ -16,7 +16,8 @@ process ANTISMASH {
     val cb_subclusters                                                    // Compare identified clusters against known subclusters responsible for synthesising precursors.
     val cb_knownclusters                                                  // Compare identified clusters against known gene clusters from the MIBiG database.
     val reformat_with_veba                                                // Reformat the output to be compatible with VEBA
-  
+    val hmmdetection_strictness                                           // Defines which level of strictness to use for HMM-based cluster detection {strict,relaxed,loose} 
+
     output:
     tuple val(meta), path("${prefix}/{css,images,js}")                    , emit: html_accessory_files
     tuple val(meta), path("${prefix}/*.gbk.gz")                           , emit: gbk_input
@@ -116,6 +117,7 @@ process ANTISMASH {
         --genefinding-tool none \\
         --logfile ${prefix}/${prefix}.log \\
         --databases ${databases} \\
+        --hmmdetection-strictness ${hmmdetection_strictness} \\
         ${cc_mibig_flag} \\
         ${cb_general_flag} \\
         ${cb_subclusters_flag} \\

@@ -2,6 +2,11 @@
 
 All notable changes to this module will be documented in this file.
 
+## v2026.09.23
+### Added
+- Added `hmmdetection_strictness` parameter
+
+
 ## v2026.04.27
 ### Added
 - GFF staging to handle NCBI GFF with `pseudogenic_tRNA` and other record types [issue/#15](https://github.com/jolespin/nf-modules/issues/15)
