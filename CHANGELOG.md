@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.4] - TBD
 
+### Added
+* `autocycler`
+* `nf_utils`
+
 ### Changed
 * `antismash-veba`
   * GFF staging to handle `pseudogenic_tRNA` and other record types
 * `minimap2_align`, `strobealign`, and `strobealign-veba`
   * Changed inputs to `tuple val(meta), path(reads), path(reference)`
-
 
 ### Removed
 * Removed `def module_version` declarations and `module:` version entries from all modules for Nextflow 26 compatibility (`Statements cannot be mixed with script declarations`)
