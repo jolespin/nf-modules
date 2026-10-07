@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * GFF staging to handle `pseudogenic_tRNA` and other record types
 * `minimap2_align`, `strobealign`, and `strobealign-veba`
   * Changed inputs to `tuple val(meta), path(reads), path(reference)`
+  * Removed automatic prefixing to `spades` and `flye` in favor of using `PREPEND_PREFIX_TO_FASTA_HEADERS` from `nf_utils` module
 
 ### Removed
 * Removed `def module_version` declarations and `module:` version entries from all modules for Nextflow 26 compatibility (`Statements cannot be mixed with script declarations`)

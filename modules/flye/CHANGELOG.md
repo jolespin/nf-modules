@@ -2,6 +2,10 @@
 
 All notable changes to this module will be documented in this file.
 
+## v2026.10.07
+### Changed
+- Removed automatic `${meta.id}__` prefixing in favor of using `PREPEND_PREFIX_TO_FASTA_HEADERS` from `nf_utils` module
+
 ## v2025.10.28
 
 ### Changed

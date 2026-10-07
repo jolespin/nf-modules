@@ -17,8 +17,8 @@ process SPADES {
     val program
 
     output:
-    tuple val(meta), path('*.scaffolds.fa.gz')    , emit: scaffolds
-    tuple val(meta), path('*.contigs.fa.gz')      , emit: contigs
+    tuple val(meta), path('*.scaffolds.fa.gz')    , emit: scaffolds, optional: true
+    tuple val(meta), path('*.contigs.fa.gz')      , emit: contigs, optional: true
     tuple val(meta), path('*.transcripts.fa.gz')  , emit: transcripts, optional: true
     tuple val(meta), path('*.gene_clusters.fa.gz'), emit: gene_clusters, optional: true
     tuple val(meta), path('*.assembly.gfa.gz')    , emit: gfa, optional: true
@@ -50,41 +50,52 @@ process SPADES {
 
     mv spades.log ${prefix}.spades.log
 
-    # Process scaffolds with ID prefix
+    # Rename scaffolds
     if [ -f scaffolds.fasta ]; then
-        # Add sample ID prefix to scaffold names
-        sed 's/^>/>'"${meta.id}"'__/' scaffolds.fasta > ${prefix}.scaffolds.fa
+        # // Add sample ID prefix to scaffold names
+        # sed 's/^>/>'"${meta.id}"'__/' scaffolds.fasta > ${prefix}.scaffolds.fa
+
+        mv -v scaffolds.fasta ${prefix}.scaffolds.fa
         gzip -f ${prefix}.scaffolds.fa
     fi
-
-    # Process contigs with ID prefix  
+    
+    # Rename contigs
     if [ -f contigs.fasta ]; then
-        # Add sample ID prefix to contig names
-        sed 's/^>/>'"${meta.id}"'__/' contigs.fasta > ${prefix}.contigs.fa
+        # // Add sample ID prefix to contig names
+        # sed 's/^>/>'"${meta.id}"'__/' contigs.fasta > ${prefix}.contigs.fa
+
+        mv -v contigs.fasta ${prefix}.contigs.fa
         gzip -f ${prefix}.contigs.fa
+
     fi
 
-    # Process transcripts with ID prefix (if exists)
+    # Rename transcripts
     if [ -f transcripts.fasta ]; then
-        sed 's/^>/>'"${meta.id}"'__/' transcripts.fasta > ${prefix}.transcripts.fa
+        # sed 's/^>/>'"${meta.id}"'__/' transcripts.fasta > ${prefix}.transcripts.fa
+        # gzip -f ${prefix}.transcripts.fa
+
+        mv -v transcripts.fasta ${prefix}.transcripts.fa
         gzip -f ${prefix}.transcripts.fa
     fi
 
-    # Process gene clusters with ID prefix (if exists)
+    # Rename gene clusters
     if [ -f gene_clusters.fasta ]; then
-        sed 's/^>/>'"${meta.id}"'__/' gene_clusters.fasta > ${prefix}.gene_clusters.fa
+        # sed 's/^>/>'"${meta.id}"'__/' gene_clusters.fasta > ${prefix}.gene_clusters.fa
+        # gzip -f ${prefix}.gene_clusters.fa
+
+        mv -v gene_clusters.fasta ${prefix}.gene_clusters.fa
         gzip -f ${prefix}.gene_clusters.fa
     fi
 
-    # Process assembly graph (if exists)
+    # Rename assembly graph
     if [ -f assembly_graph_with_scaffolds.gfa ]; then
-        cp assembly_graph_with_scaffolds.gfa ${prefix}.assembly.gfa
+        mv -v assembly_graph_with_scaffolds.gfa ${prefix}.assembly.gfa
         gzip -f ${prefix}.assembly.gfa
     fi
 
     # Process warnings (if exists)
     if [ -f warnings.log ]; then
-        cp warnings.log ${prefix}.warnings.log
+        mv -v warnings.log ${prefix}.warnings.log
     fi
 
     cat <<-END_VERSIONS > versions.yml
@@ -98,7 +109,7 @@ process SPADES {
     """
     touch ${prefix}.scaffolds.fa
     gzip ${prefix}.scaffolds.fa
-    touch ${prefix}.contigs.fa  
+    touch ${prefix}.contigs.fa
     gzip ${prefix}.contigs.fa
     touch ${prefix}.transcripts.fa
     gzip ${prefix}.transcripts.fa

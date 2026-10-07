@@ -40,10 +40,15 @@ process FLYE {
         --threads $task.cpus \\
         $args
 
-    # Process assembly.fasta with ID prefix
+    # # Process assembly.fasta with ID prefix
+    # if [ -f assembly.fasta ]; then
+    #     # Add sample ID prefix to contig names
+    #     sed 's/^>/>'"${meta.id}"'__/' assembly.fasta > ${prefix}.assembly.fa
+    #     gzip -f ${prefix}.assembly.fa
+    # fi
+
     if [ -f assembly.fasta ]; then
-        # Add sample ID prefix to contig names
-        sed 's/^>/>'"${meta.id}"'__/' assembly.fasta > ${prefix}.assembly.fa
+        mv -v assembly.fasta ${prefix}.assembly.fa
         gzip -f ${prefix}.assembly.fa
     fi
 

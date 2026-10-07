@@ -12,11 +12,11 @@ process AUTOCYCLER {
 
     input:
     tuple val(meta), path(reads)
-    val read_type
-    val assemblers
-    val subsample_count
-    val min_depth_rel
-    val min_contig_length
+    val read_type                   // ont_r10, ont_r9, pacbio_hifi, pacbio_clr
+    val assemblers                  // default: "flye,raven,miniasm,myloasm,plassembler,metamdbg"
+    val subsample_count             // default: 2
+    val min_depth_rel               // default: 0.1
+    val min_contig_length           // default: 1000
 
     output:
     tuple val(meta), path("*.assembly.fa.gz")         , emit: fasta
