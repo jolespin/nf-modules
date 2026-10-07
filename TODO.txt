@@ -1,0 +1,3 @@
+# To Do
+* Remove automatic prefixing from SPAdes and Flye
+* Add separate prefixing process

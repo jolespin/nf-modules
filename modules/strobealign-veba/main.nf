@@ -9,8 +9,7 @@ process STROBEALIGN_WRAPPER {
     container "docker.io/jolespin/fastq_preprocessor:2026.4.21"
 
     input:
-    tuple val(meta), path(reads)
-    tuple val(meta2), path(reference)
+    tuple val(meta), path(reads), path(reference)
     val save_mapped_reads
     val save_unmapped_reads
     val save_bam

@@ -9,8 +9,7 @@ process STROBEALIGN {
     container "docker.io/jolespin/strobealign-samtools:strobealign0.16.1-samtools1.22.1"
 
     input:
-    tuple val(meta), path(reads)
-    tuple val(meta2), path(reference)
+    tuple val(meta), path(reads), path(reference)
     val mode
 
     output:

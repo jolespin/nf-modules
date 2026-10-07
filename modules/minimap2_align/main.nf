@@ -9,8 +9,7 @@ process MINIMAP2_ALIGN {
     container "docker.io/jolespin/minimap2-samtools:minimap22.30-samtools1.22.1"
 
     input:
-    tuple val(meta), path(reads)
-    tuple val(meta2), path(reference)
+    tuple val(meta), path(reads), path(reference)
     val preset
     val mode
 
