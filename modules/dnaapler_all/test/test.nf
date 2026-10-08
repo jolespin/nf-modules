@@ -4,14 +4,14 @@ nextflow.enable.dsl = 2
 include { DNAAPLER_ALL } from "../main"
 
 workflow {
-    fasta_ch = Channel.fromPath(params.fasta)
+    gfa_ch = Channel.fromPath(params.gfa)
 
-    fasta_with_meta = fasta_ch.map { file ->
+    gfa_with_meta = gfa_ch.map { file ->
         [[id: "test"], file]
     }
 
     DNAAPLER_ALL(
-        fasta_with_meta,
+        gfa_with_meta,
         params.min_contig_length,   // default: 1000
     )
 
