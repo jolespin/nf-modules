@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-def module_version = "2026.10.6"
-
 process AUTOCYCLER {
     tag "$meta.id"
     label 'process_high'
@@ -22,7 +20,7 @@ process AUTOCYCLER {
     tuple val(meta), path("*.assembly.fa.gz")         , emit: fasta
     tuple val(meta), path("*.assembly.gfa.gz")        , emit: gfa
     tuple val(meta), path("*.assembly.yaml")          , emit: stats
-    tuple val(meta), path("*.discarded-contigs.fa.gz") , emit: discarded_contigs
+    tuple val(meta), path("*.discarded-contigs.fa.gz"), emit: discarded_contigs
     tuple val(meta), path("*.autocycler.log")         , emit: log
     path "versions.yml"                               , emit: versions
 
@@ -170,7 +168,6 @@ process AUTOCYCLER {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         autocycler: \$(autocycler --version 2>&1 | sed 's/^[^ ]* //')
-        module: ${module_version}
     END_VERSIONS
     """
 }
