@@ -13,13 +13,13 @@ process DNAAPLER_ALL {
     val min_contig_length           // default: 1000
 
     output:
-    tuple val(meta), path("*.dnaapler.fa.gz")                        , emit: fasta
-    tuple val(meta), path("*.dnaapler.gfa.gz")                       , emit: gfa
-    tuple val(meta), path("*.dnaapler.discarded-contigs.fa.gz")      , emit: discarded_contigs
-    tuple val(meta), path("*.dnaapler_reorientation_summary.ts.gz")  , emit: reorientation_summary
-    tuple val(meta), path("*.mmseqs2_output.tsv.gz")                 , emit: mmseqs2_output, optional: true
-    tuple val(meta), path("*.log")                                   , emit: log
-    path "versions.yml"                                              , emit: versions
+    tuple val(meta), path("*.dnaapler.fa.gz")                         , emit: fasta
+    tuple val(meta), path("*.dnaapler.gfa.gz")                        , emit: gfa
+    tuple val(meta), path("*.dnaapler.discarded-contigs.fa.gz")       , emit: discarded_contigs
+    tuple val(meta), path("*.dnaapler_reorientation_summary.tsv.gz")  , emit: reorientation_summary
+    tuple val(meta), path("*.mmseqs2_output.tsv.gz")                  , emit: mmseqs2_output, optional: true
+    tuple val(meta), path("*.log")                                    , emit: log
+    path "versions.yml"                                               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
