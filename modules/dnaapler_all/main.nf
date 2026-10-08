@@ -42,8 +42,8 @@ process DNAAPLER_ALL {
     mv -v output/* .
 
     # Filter
-    seqkit seq -M \$((${min_contig_length} - 1)) ${meta.id}_reoriented.fasta > ${meta.id}.dnaapler.discarded-contigs.fa    
-    seqkit seq -m ${min_contig_length} ${meta.id}_reoriented.fasta > ${meta.id}.dnaapler.fa
+    seqkit seq -w 0 -M \$((${min_contig_length} - 1)) ${meta.id}_reoriented.fasta > ${meta.id}.dnaapler.discarded-contigs.fa    
+    seqkit seq -w 0 -m ${min_contig_length} ${meta.id}_reoriented.fasta > ${meta.id}.dnaapler.fa
 
     # Rename
     mv -v ${meta.id}_reoriented.gfa ${meta.id}.dnaapler.gfa
