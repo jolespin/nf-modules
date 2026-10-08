@@ -3,7 +3,7 @@ nextflow.enable.dsl = 2
 
 process DNAAPLER_ALL {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_medium'
 
     conda "bioconda::dnaapler=1.4.0 bioconda::seqkit=2.14.0"
     container "docker.io/jolespin/dnaapler:1.4.0"
@@ -16,6 +16,8 @@ process DNAAPLER_ALL {
     tuple val(meta), path("*.dnaapler.fa.gz")                    , emit: fasta
     tuple val(meta), path("*.dnaapler.gfa.gz")                   , emit: gfa
     tuple val(meta), path("*.dnaapler.discarded-contigs.fa.gz")  , emit: discarded_contigs
+    tuple val(meta), path("*.dnaapler_reorientation_summary.tsv"), emit: reorientation_summary
+    tuple val(meta), path("*.mmseqs2_output.tsv")                , emit: mmseqs2_output, optional: true
     tuple val(meta), path("*.log")                               , emit: log
     path "versions.yml"                                          , emit: versions
 
@@ -45,9 +47,10 @@ process DNAAPLER_ALL {
 
     # Rename
     mv -v ${meta.id}_reoriented.gfa ${meta.id}.dnaapler.gfa
-    mv -v ${meta.id}_MMseqs2_output.txt ${meta.id}.mmseqs2_output.tsv
     mv -v ${meta.id}_all_reorientation_summary.tsv ${meta.id}.dnaapler_reorientation_summary.tsv
-
+    if [ -f ${meta.id}_MMseqs2_output.txt ]; then
+        mv -v ${meta.id}_MMseqs2_output.txt ${meta.id}.mmseqs2_output.tsv
+    fi
 
 
     # Gzip
