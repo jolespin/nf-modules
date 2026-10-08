@@ -50,32 +50,41 @@ pacbio_autocycler_read_type = "pacbio_hifi"
 ## Pipeline Steps (executed sequentially within the process)
 
 1. **Genome size estimation** — `autocycler helper genome_size` (quick Raven assembly)
-2. **Read subsampling** — `autocycler subsample` (default: 2 subsets, seed 42)
-3. **Parallel assembly** — 6 assemblers x 2 subsets = 12 jobs via GNU parallel
-4. **Weight adjustments** — Plassembler circular and Flye consensus weights
-5. **Compress** — `autocycler compress` (build unitig graph from all assemblies)
-6. **Cluster** — `autocycler cluster` (group contigs into putative genomic elements)
-7. **Trim + Resolve** — per QC-pass cluster (collapse redundancy, resolve repeats)
-8. **Combine** — `autocycler combine` (merge clusters into final consensus with depth)
-9. **Output** — gzip FASTA and GFA, copy stats YAML
+2. **Read depth estimation** — counts total bases and calculates depth relative to estimated genome size
+3. **Adaptive subsampling** — if read depth >= `min_read_depth` (default: 25x), runs `autocycler subsample` to create N subsets (default: 4). If depth is below the threshold, skips subsampling and uses all reads as a single subset (count=1). Strategy is logged for user visibility
+4. **Parallel assembly** — 6 assemblers x N subsets via GNU parallel (24 jobs at normal depth, 6 at low depth)
+5. **Weight adjustments** — Plassembler circular and Flye consensus weights
+6. **Compress** — `autocycler compress` (build unitig graph from all assemblies)
+7. **Cluster** — `autocycler cluster` (group contigs into putative genomic elements)
+8. **Trim + Resolve** — per QC-pass cluster (collapse redundancy, resolve repeats)
+9. **Combine** — `autocycler combine` (merge clusters into final consensus with depth)
+10. **Output** — gzip FASTA and GFA, copy stats YAML
 
 ## CPU Allocation Strategy
 
 Each assembly job needs meaningful CPU allocation to run efficiently. The process ensures each concurrent job gets at least 4 threads, scaling concurrency based on available CPUs:
 
+**Normal depth (>= 25x): 4 subsets x 6 assemblers = 24 jobs**
+
 | `task.cpus` | Concurrent jobs | Threads/job | Behavior |
 |---|---|---|---|
-| 1 | 1 | 1 | Sequential, 1 thread (minimum viable) |
 | 4 | 1 | 4 | Sequential, 4 threads per job |
-| 8 | 2 | 4 | 2 concurrent, 4 threads each |
-| 16 | 4 | 4 | 4 concurrent, 3 rounds of jobs |
-| 32 | 8 | 4 | 8 concurrent, 2 rounds |
-| 48 | 12 | 4 | All 12 concurrent, 4 threads each |
-| 96 | 12 | 8 | All 12 concurrent, 8 threads each |
+| 8 | 2 | 4 | 2 concurrent, 12 rounds |
+| 16 | 4 | 4 | 4 concurrent, 6 rounds |
+| 32 | 8 | 4 | 8 concurrent, 3 rounds |
+| 96 | 24 | 4 | All 24 concurrent, 4 threads each |
+
+**Low depth (< 25x): 1 subset x 6 assemblers = 6 jobs**
+
+| `task.cpus` | Concurrent jobs | Threads/job | Behavior |
+|---|---|---|---|
+| 4 | 1 | 4 | Sequential, 4 threads per job |
+| 16 | 4 | 4 | 4 concurrent, 2 rounds |
+| 32 | 6 | 5 | All 6 concurrent |
 
 Non-assembly steps (genome size estimation, compress, trim, resolve, combine) use all available threads.
 
-**Recommended allocation**: 16 CPUs / 32 GB for typical bacterial isolates. This runs 4 assembly jobs concurrently with 4 threads each, completing all 12 jobs in ~3 rounds.
+**Recommended allocation**: 16 CPUs / 32 GB for typical bacterial isolates. At normal depth, this runs 4 assembly jobs concurrently with 4 threads each, completing all 24 jobs in ~6 rounds.
 
 ## Configurable Parameters
 
@@ -84,10 +93,11 @@ Set in `nextflow.config` under `params`:
 | Parameter | Default | Description |
 |---|---|---|
 | `autocycler_assemblers` | `"flye,raven,miniasm,myloasm,plassembler,metamdbg"` | Comma-separated assembler list |
-| `autocycler_subsample_count` | `2` | Number of read subsets |
+| `autocycler_subsample_count` | `4` | Number of read subsets (at normal depth) |
+| `autocycler_min_read_depth` | `25` | Minimum read depth for subsampling. Below this, all reads are used with each assembler (count=1) |
 | `autocycler_min_depth_rel` | `0.1` | Filter contigs below this fraction of max depth |
-| `ont_autocycler_read_type` | `"ont_r10"` | Read type for ONT samples |
-| `pacbio_autocycler_read_type` | `"pacbio_hifi"` | Read type for PacBio samples |
+| `ont_type` | `"ont_r10"` | Read type for ONT samples |
+| `pacbio_type` | `"pacbio_hifi"` | Read type for PacBio samples |
 
 ## Default Assemblers
 

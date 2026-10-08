@@ -12,7 +12,8 @@ process AUTOCYCLER {
     tuple val(meta), path(reads)
     val read_type                   // ont_r10, ont_r9, pacbio_hifi, pacbio_clr
     val assemblers                  // default: "flye,raven,miniasm,myloasm,plassembler,metamdbg"
-    val subsample_count             // default: 2
+    val subsample_count             // default: 4
+    val min_read_depth              // default: 25
     val min_depth_rel               // default: 0.1
     val min_contig_length           // default: 1000
 
@@ -33,7 +34,6 @@ process AUTOCYCLER {
     def assembler_tokens = assemblers.toString().split(',').collect { it.trim() }
 
     def assembler_list = assembler_tokens.join(' ')
-    def subsample_indices = (1..subsample_count.toInteger()).collect { String.format('%02d', it) }.join(' ')
 
     """
     #!/usr/bin/env bash
@@ -54,29 +54,48 @@ process AUTOCYCLER {
     genome_size=\$(autocycler helper genome_size --reads \$reads_file --threads \$threads)
     echo "Estimated genome size: \$genome_size" | tee ${prefix}.autocycler.log
 
-    # Step 2: Subsample reads
-    autocycler subsample \\
-        --reads \$reads_file \\
-        --out_dir subsampled_reads \\
-        --genome_size \$genome_size \\
-        --count ${subsample_count} \\
-        --seed 42 \\
-        2>> ${prefix}.autocycler.log
+    # Step 2: Calculate read depth and determine subsampling strategy
+    total_bases=\$(awk 'NR%4==2 {sum += length(\$0)} END {print sum}' \$reads_file)
+    read_depth=\$(( total_bases / genome_size ))
+    echo "Total read bases: \$total_bases" >> ${prefix}.autocycler.log
+    echo "Estimated read depth: \${read_depth}x" >> ${prefix}.autocycler.log
+
+    requested_count=${subsample_count}
+    min_depth=${min_read_depth}
+
+    if [ \$read_depth -lt \$min_depth ]; then
+        actual_count=1
+        echo "WARNING: Read depth (\${read_depth}x) is below minimum read depth (\${min_depth}x) for subsampling." >> ${prefix}.autocycler.log
+        echo "Skipping subsampling — using all reads with each assembler (count=1)." >> ${prefix}.autocycler.log
+        mkdir -p subsampled_reads
+        cp \$reads_file subsampled_reads/sample_01.fastq
+    else
+        actual_count=\$requested_count
+        echo "Read depth (\${read_depth}x) meets minimum (\${min_depth}x). Subsampling into \$actual_count subsets." >> ${prefix}.autocycler.log
+        autocycler subsample \\
+            --reads \$reads_file \\
+            --out_dir subsampled_reads \\
+            --genome_size \$genome_size \\
+            --count \$actual_count \\
+            --min_read_depth \$min_depth \\
+            --seed 42 \\
+            2>> ${prefix}.autocycler.log
+    fi
+
+    subsample_indices=\$(seq -f '%02g' 1 \$actual_count)
 
     # Step 3: Build assembly jobs and run in parallel
     mkdir -p assemblies
 
-    # Calculate parallelism: ensure each job gets at least 4 threads
     min_threads_per_job=4
     assembler_count=\$(echo "${assembler_list}" | wc -w)
-    total_jobs=\$(( assembler_count * ${subsample_count} ))
+    total_jobs=\$(( assembler_count * actual_count ))
+    echo "Assembly jobs: \$total_jobs (\$assembler_count assemblers x \$actual_count subsets)" >> ${prefix}.autocycler.log
 
     if [ \$threads -lt \$min_threads_per_job ]; then
-        # Fewer CPUs than the minimum per job — run 1 job at a time with all CPUs
         parallel_jobs=1
         threads_per_job=\$threads
     else
-        # Max concurrent jobs such that each gets at least min_threads_per_job
         max_by_threads=\$(( \$threads / \$min_threads_per_job ))
         parallel_jobs=\$(( max_by_threads < total_jobs ? max_by_threads : total_jobs ))
         parallel_jobs=\$(( parallel_jobs < 1 ? 1 : parallel_jobs ))
@@ -84,7 +103,7 @@ process AUTOCYCLER {
     fi
 
     for assembler in ${assembler_list}; do
-        for i in ${subsample_indices}; do
+        for i in \$subsample_indices; do
             echo "autocycler helper \$assembler --reads subsampled_reads/sample_\$i.fastq --out_prefix assemblies/\${assembler}_\$i --threads \$threads_per_job --genome_size \$genome_size --read_type ${read_type} --min_depth_rel ${min_depth_rel}"
         done
     done > assemblies/jobs.txt
