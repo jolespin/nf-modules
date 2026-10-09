@@ -17,6 +17,7 @@ process AUTOCYCLER {
     val min_read_depth              // default: 25
     val min_depth_rel               // default: 0.1
     val min_contig_length           // default: 1000
+    val n_concurrent_tasks          // "auto" or integer; max parallel assembly jobs within this process
 
     output:
     tuple val(meta), path("*.assembly.fa.gz")         , emit: fasta
@@ -112,15 +113,24 @@ process AUTOCYCLER {
     total_jobs=\$(( assembler_count * actual_count ))
     echo "Assembly jobs: \$total_jobs (\$assembler_count assemblers x \$actual_count subsets)" >> ${prefix}.autocycler.log
 
-    if [ \$threads -lt \$min_threads_per_job ]; then
-        parallel_jobs=1
-        threads_per_job=\$threads
+    if [ "${n_concurrent_tasks}" = "auto" ]; then
+        if [ \$threads -lt \$min_threads_per_job ]; then
+            parallel_jobs=1
+        else
+            max_by_threads=\$(( \$threads / \$min_threads_per_job ))
+            parallel_jobs=\$(( max_by_threads < total_jobs ? max_by_threads : total_jobs ))
+            parallel_jobs=\$(( parallel_jobs < 1 ? 1 : parallel_jobs ))
+        fi
     else
-        max_by_threads=\$(( \$threads / \$min_threads_per_job ))
-        parallel_jobs=\$(( max_by_threads < total_jobs ? max_by_threads : total_jobs ))
+        parallel_jobs=${n_concurrent_tasks}
+        if [ \$parallel_jobs -gt \$threads ]; then
+            echo "WARNING: concurrent_jobs (\$parallel_jobs) exceeds available CPUs (\$threads). Capping at \$threads." >> ${prefix}.autocycler.log
+            parallel_jobs=\$threads
+        fi
         parallel_jobs=\$(( parallel_jobs < 1 ? 1 : parallel_jobs ))
-        threads_per_job=\$(( \$threads / \$parallel_jobs ))
     fi
+    threads_per_job=\$(( \$threads / \$parallel_jobs ))
+    echo "Parallel assembly jobs: \$parallel_jobs (threads per job: \$threads_per_job)" >> ${prefix}.autocycler.log
 
     for assembler in ${assembler_list}; do
         for i in \$subsample_indices; do

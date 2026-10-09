@@ -75,9 +75,9 @@ When `"auto"` is used, genome size is estimated per sample, which adds a Raven a
 
 ## CPU Allocation Strategy
 
-Each assembly job needs meaningful CPU allocation to run efficiently. The process ensures each concurrent job gets at least 4 threads, scaling concurrency based on available CPUs:
+Each assembly job needs meaningful CPU allocation to run efficiently. By default (`n_concurrent_tasks = "auto"`), the process ensures each concurrent job gets at least 4 threads, scaling concurrency based on available CPUs. You can override this with an explicit integer value via `--n_concurrent_autocycler_tasks`.
 
-**Normal depth (>= 25x): 4 subsets x 6 assemblers = 24 jobs**
+**`n_concurrent_tasks = "auto"` (default) — Normal depth (>= 25x): 4 subsets x 6 assemblers = 24 jobs**
 
 | `task.cpus` | Concurrent jobs | Threads/job | Behavior |
 |---|---|---|---|
@@ -87,7 +87,7 @@ Each assembly job needs meaningful CPU allocation to run efficiently. The proces
 | 32 | 8 | 4 | 8 concurrent, 3 rounds |
 | 96 | 24 | 4 | All 24 concurrent, 4 threads each |
 
-**Low depth (< 25x): 1 subset x 6 assemblers = 6 jobs**
+**`n_concurrent_tasks = "auto"` (default) — Low depth (< 25x): 1 subset x 6 assemblers = 6 jobs**
 
 | `task.cpus` | Concurrent jobs | Threads/job | Behavior |
 |---|---|---|---|
@@ -95,9 +95,13 @@ Each assembly job needs meaningful CPU allocation to run efficiently. The proces
 | 16 | 4 | 4 | 4 concurrent, 2 rounds |
 | 32 | 6 | 5 | All 6 concurrent |
 
+**`n_concurrent_tasks = <integer>` — explicit override**
+
+When set to an integer, that exact number of assembly jobs run concurrently (capped at available CPUs). Threads per job = `task.cpus / n_concurrent_tasks`. For example, with `task.cpus = 4` and `n_concurrent_tasks = 2`, each job gets 2 threads.
+
 Non-assembly steps (genome size estimation, compress, trim, resolve, combine) use all available threads.
 
-**Recommended allocation**: 16 CPUs / 32 GB for typical bacterial isolates. At normal depth, this runs 4 assembly jobs concurrently with 4 threads each, completing all 24 jobs in ~6 rounds.
+**Recommended allocation**: 16 CPUs / 32 GB for typical bacterial isolates. At normal depth with `"auto"`, this runs 4 assembly jobs concurrently with 4 threads each, completing all 24 jobs in ~6 rounds.
 
 ## Configurable Parameters
 
@@ -110,6 +114,7 @@ Set in `nextflow.config` under `params`:
 | `autocycler_subsample_count` | `4` | Number of read subsets (at normal depth) |
 | `autocycler_min_read_depth` | `25` | Minimum read depth for subsampling. Below this, all reads are used with each assembler (count=1) |
 | `autocycler_min_depth_rel` | `0.1` | Filter contigs below this fraction of max depth |
+| `n_concurrent_autocycler_tasks` | `"auto"` | Number of parallel assembly jobs: `"auto"` (calculate from CPUs, 4 threads/job floor) or an integer |
 | `ont_type` | `"ont_r10"` | Read type for ONT samples |
 | `pacbio_type` | `"pacbio_hifi"` | Read type for PacBio samples |
 
@@ -156,9 +161,8 @@ AUTOCYCLER.out.log    // tuple(meta, SAMPLE.autocycler.log)
 
 ```groovy
 withName: 'AUTOCYCLER' {
-    cpus = 16
-    memory = '32.GB'
-    time = '8.h'
+    cpus = 4       // Default; increase for more within-process parallelism
+    memory = '20.GB'
     errorStrategy = 'finish'
 }
 ```
