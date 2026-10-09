@@ -4,7 +4,7 @@ Monolithic consensus long-read assembler for bacterial isolate genomes. Runs the
 
 ## Unique Features
 
-* Automatically estimates genome size per sample via `autocycler helper genome_size` (quick Raven assembly) — no manual input needed
+* Accepts user-provided genome size or automatically estimates it via `autocycler helper genome_size` (quick Raven assembly)
 * Handles gzipped input reads (decompresses internally)
 * Runs 6 assemblers in parallel via GNU parallel with configurable concurrency
 * Tolerates individual assembler failures (`set +e`) — remaining assemblies still produce a consensus
@@ -21,6 +21,7 @@ Monolithic consensus long-read assembler for bacterial isolate genomes. Runs the
 |---|---|---|
 | `(meta, reads)` | `tuple(val, path)` | Sample metadata and long-read FASTQ (`.fastq` or `.fastq.gz`) |
 | `read_type` | `val` | AutoCycler read type string (see table below) |
+| `genome_size` | `val` | Genome size: `"auto"` to estimate via Raven, or a specific value (see below) |
 
 ### `read_type` values
 
@@ -37,6 +38,18 @@ ont_autocycler_read_type = "ont_r10"
 pacbio_autocycler_read_type = "pacbio_hifi"
 ```
 
+### `genome_size` values
+
+| Value | Description |
+|---|---|
+| `"auto"` | Estimate genome size via a quick Raven assembly (`autocycler helper genome_size`) **(default)** |
+| `"4m"` or `"4M"` | 4,000,000 bp — suffix `k`/`m`/`g` (case-insensitive) supported |
+| `"4.5m"` | 4,500,000 bp — decimals allowed before the suffix |
+| `"5000000"` | 5,000,000 bp — raw integer |
+| `"5000k"` | 5,000,000 bp — equivalent using `k` suffix |
+
+When `"auto"` is used, genome size is estimated per sample, which adds a Raven assembly step (~2-5 min). Providing a known genome size skips this step and can speed up the pipeline, especially when the expected size is known (e.g. *E. coli* ~`"5m"`, *S. aureus* ~`"2.8m"`).
+
 ## Outputs
 
 | Output | Emit | Description |
@@ -49,7 +62,7 @@ pacbio_autocycler_read_type = "pacbio_hifi"
 
 ## Pipeline Steps (executed sequentially within the process)
 
-1. **Genome size estimation** — `autocycler helper genome_size` (quick Raven assembly)
+1. **Genome size determination** — uses the provided `genome_size` value, or estimates it via `autocycler helper genome_size` (quick Raven assembly) when set to `"auto"`
 2. **Read depth estimation** — counts total bases and calculates depth relative to estimated genome size
 3. **Adaptive subsampling** — if read depth >= `min_read_depth` (default: 25x), runs `autocycler subsample` to create N subsets (default: 4). If depth is below the threshold, skips subsampling and uses all reads as a single subset (count=1). Strategy is logged for user visibility
 4. **Parallel assembly** — 6 assemblers x N subsets via GNU parallel (24 jobs at normal depth, 6 at low depth)
@@ -93,6 +106,7 @@ Set in `nextflow.config` under `params`:
 | Parameter | Default | Description |
 |---|---|---|
 | `autocycler_assemblers` | `"flye,raven,miniasm,myloasm,plassembler,metamdbg"` | Comma-separated assembler list |
+| `autocycler_genome_size` | `"auto"` | Genome size: `"auto"` to estimate, or a value like `"4m"`, `"5000000"` |
 | `autocycler_subsample_count` | `4` | Number of read subsets (at normal depth) |
 | `autocycler_min_read_depth` | `25` | Minimum read depth for subsampling. Below this, all reads are used with each assembler (count=1) |
 | `autocycler_min_depth_rel` | `0.1` | Filter contigs below this fraction of max depth |
@@ -117,10 +131,18 @@ If plassembler's database is not available, its assembly jobs fail silently and 
 ## Example Usage
 
 ```groovy
-// In a workflow:
+// In a workflow (auto genome size estimation):
 AUTOCYCLER(
     reads_ch,       // tuple(meta, reads.fastq.gz)
     "ont_r10",      // read_type
+    "auto",         // genome_size — estimate via Raven
+)
+
+// With a known genome size (skips Raven estimation):
+AUTOCYCLER(
+    reads_ch,
+    "ont_r10",
+    "4.6m",         // genome_size — E. coli
 )
 
 // Outputs:

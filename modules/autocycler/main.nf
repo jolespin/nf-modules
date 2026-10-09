@@ -12,6 +12,7 @@ process AUTOCYCLER {
     tuple val(meta), path(reads)
     val read_type                   // ont_r10, ont_r9, pacbio_hifi, pacbio_clr
     val assemblers                  // default: "flye,raven,miniasm,myloasm,plassembler,metamdbg"
+    val genome_size                  // "auto" or size value (e.g., "4m", "4.5M", "5000k", "5000000")
     val subsample_count             // default: 4
     val min_read_depth              // default: 25
     val min_depth_rel               // default: 0.1
@@ -50,9 +51,28 @@ process AUTOCYCLER {
     # Cap threads at 100 (AutoCycler limitation)
     threads=\$(( ${task.cpus} > 100 ? 100 : ${task.cpus} ))
 
-    # Step 1: Estimate genome size via quick Raven assembly
-    genome_size=\$(autocycler helper genome_size --reads \$reads_file --threads \$threads)
-    echo "Estimated genome size: \$genome_size" | tee ${prefix}.autocycler.log
+    # Step 1: Determine genome size
+    if [ "${genome_size}" = "auto" ]; then
+        genome_size=\$(autocycler helper genome_size --reads \$reads_file --threads \$threads)
+        echo "Estimated genome size: \$genome_size" | tee ${prefix}.autocycler.log
+    else
+        # Convert suffixed values (e.g. 4m, 5.5M, 100k, 1g) to integer
+        genome_size_raw="${genome_size}"
+        genome_size=\$(echo "\$genome_size_raw" | awk '{
+            s = tolower(\$0);
+            if (match(s, /^[0-9.]+[kmg]\$/)) {
+                num = substr(s, 1, length(s)-1) + 0;
+                suffix = substr(s, length(s));
+                if (suffix == "k") num *= 1000;
+                else if (suffix == "m") num *= 1000000;
+                else if (suffix == "g") num *= 1000000000;
+                printf "%d", num;
+            } else {
+                printf "%d", s + 0;
+            }
+        }')
+        echo "User-provided genome size: \$genome_size (from \$genome_size_raw)" | tee ${prefix}.autocycler.log
+    fi
 
     # Step 2: Calculate read depth and determine subsampling strategy
     total_bases=\$(awk 'NR%4==2 {sum += length(\$0)} END {print sum}' \$reads_file)
