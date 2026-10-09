@@ -21,7 +21,8 @@ workflow {
     // Run the process with the prepared channel.
     MEDAKA(
         combined_ch,
-	)
+        params.model,
+    )
 
     // View the output to confirm the pipeline ran successfully.
     MEDAKA.out.assembly.view()
