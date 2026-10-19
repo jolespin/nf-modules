@@ -2,6 +2,10 @@
 
 All notable changes to this module will be documented in this file.
 
+## v2026.10.19
+### Fixed
+- Fixed issue regarding `veba_reformatted` processing silently failing due to `nan` in GFF parsing from NCBI by `biosynthetic_genbanks_to_table.py` ([VEBA Issue #213](https://github.com/jolespin/veba/issues/213))
+
 ## v2026.09.23
 ### Added
 - Added `hmmdetection_strictness` parameter
